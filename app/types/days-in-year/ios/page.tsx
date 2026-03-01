@@ -17,6 +17,8 @@ import IosInstall from "./tabs/install";
 export default function IosTab() {
     const passed = daysPassed();
     const total = totalDays();
+    const daysLeft = total - passed;
+    const percentage = Math.round((passed / total) * 100);
     const { x_scale, width, height } = useModelScaler(Iphone[ "17" ], {
         maxHeight: 500,
     });
@@ -31,6 +33,8 @@ export default function IosTab() {
         p.set("leftColor", formValues.leftColor.replace("#", ""));
         p.set("bgColor", formValues.bgColor.replace("#", ""));
         p.set("showPercentage", String(formValues.showPercentage));
+        p.set("daysLeftColor", formValues.daysLeftColor.replace("#", ""));
+        p.set("percentColor", formValues.percentColor.replace("#", ""));
         p.set("radius", String(formValues.radius));
         return p;
     }, [ formValues ]);
@@ -43,7 +47,7 @@ export default function IosTab() {
             <div className="flex flex-col gap-4 items-center justify-center w-full max-w-lg">
                 {/* THE PREVIEW */}
                 <Card style={{ width, height, backgroundColor: formValues.bgColor }}>
-                    <CardContent className="h-full content-end">
+                    <CardContent className="h-full content-end space-y-2">
                         <div
                             className={'justify-center'}
                             style={{
@@ -67,6 +71,19 @@ export default function IosTab() {
                                 />
                             ))}
                         </div>
+                        {formValues.showPercentage && (
+                            <div className={'text-center w-full flex gap-1 items-center justify-center'} style={{
+                                fontSize: x_scale(50)
+                            }}>
+                                <span style={{ color: formValues.daysLeftColor }}>{daysLeft}d left</span>
+                                <div className={'aspect-square rounded-full'} style={{
+                                    width: x_scale(10),
+                                    aspectRatio: 1 / 1,
+                                    backgroundColor: formValues.daysLeftColor,
+                                }} />
+                                <span style={{ color: formValues.percentColor }}>{percentage}%</span>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
                 {/* TABS */}

@@ -27,6 +27,8 @@ const formSchema = z.object({
     leftColor: z.string(),
     bgColor: z.string(),
     showPercentage: z.boolean(),
+    daysLeftColor: z.string(),
+    percentColor: z.string(),
     radius: z.number().min(0).max(100),
 });
 
@@ -38,7 +40,9 @@ export const defaultValues: FormValues = {
     passedColor: "#ef4444",
     leftColor: "#fecaca",
     bgColor: "#6b7280",
-    showPercentage: false,
+    showPercentage: true,
+    daysLeftColor: "#ffffff",
+    percentColor: "#ffffff",
     radius: 0,
 };
 
@@ -217,7 +221,7 @@ export default function IosCustomization({ onValuesChange }: Props) {
                                     {...field}
                                     id={field.name}
                                     type="color"
-                                    className="h08 w-14 cursor-pointer rounded border p-0.5"
+                                    className="h-8 w-14 cursor-pointer rounded border p-0.5"
                                     aria-invalid={fieldState.invalid}
                                 />
                                 {fieldState.invalid && (
@@ -289,7 +293,7 @@ export default function IosCustomization({ onValuesChange }: Props) {
                                 data-invalid={fieldState.invalid}
                             >
                                 <FieldLabel htmlFor={field.name}>
-                                    Show Percentage
+                                    Show Stats
                                 </FieldLabel>
                                 <Checkbox
                                     id={field.name}
@@ -305,7 +309,60 @@ export default function IosCustomization({ onValuesChange }: Props) {
                         )}
                     />
 
+                    {/* Stats colors — only shown when showPercentage is on */}
+                    {values.showPercentage && (
+                        <>
+                            <Controller
+                                name="daysLeftColor"
+                                control={form.control}
+                                render={({ field, fieldState }) => (
+                                    <Field
+                                        orientation="horizontal"
+                                        data-invalid={fieldState.invalid}
+                                    >
+                                        <FieldLabel htmlFor={field.name}>
+                                            Days Left Color
+                                        </FieldLabel>
+                                        <input
+                                            {...field}
+                                            id={field.name}
+                                            type="color"
+                                            className="h-8 w-14 cursor-pointer rounded border p-0.5"
+                                            aria-invalid={fieldState.invalid}
+                                        />
+                                        {fieldState.invalid && (
+                                            <FieldError errors={[ fieldState.error ]} />
+                                        )}
+                                    </Field>
+                                )}
+                            />
 
+                            <Controller
+                                name="percentColor"
+                                control={form.control}
+                                render={({ field, fieldState }) => (
+                                    <Field
+                                        orientation="horizontal"
+                                        data-invalid={fieldState.invalid}
+                                    >
+                                        <FieldLabel htmlFor={field.name}>
+                                            Percentage Color
+                                        </FieldLabel>
+                                        <input
+                                            {...field}
+                                            id={field.name}
+                                            type="color"
+                                            className="h-8 w-14 cursor-pointer rounded border p-0.5"
+                                            aria-invalid={fieldState.invalid}
+                                        />
+                                        {fieldState.invalid && (
+                                            <FieldError errors={[ fieldState.error ]} />
+                                        )}
+                                    </Field>
+                                )}
+                            />
+                        </>
+                    )}
 
                 </FieldGroup>
             </FieldSet>
