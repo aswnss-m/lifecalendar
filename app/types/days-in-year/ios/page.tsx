@@ -39,53 +39,54 @@ export default function IosTab() {
     const borderRadius = `${formValues.radius}%`;
 
     return (
-        <div className="space-y-4 max-w-lg">
-            {/* THE PREVIEW */}
-            <Card style={{ width, height, backgroundColor: formValues.bgColor }}>
-                <CardContent className="h-full content-end">
-                    <div
-                        className={'justify-center'}
-                        style={{
-                            display: "grid",
-                            gridTemplateColumns: `repeat(${formValues.columns}, ${cellSize}px)`,
-                            gap: "4px",
-                        }}
-                    >
-                        {Array.from({ length: total }, (_, i) => (
-                            <div
-                                key={"some" + i}
-                                style={{
-                                    width: cellSize,
-                                    height: cellSize,
-                                    backgroundColor:
-                                        i <= passed
-                                            ? formValues.passedColor
-                                            : formValues.leftColor,
-                                    borderRadius,
-                                }}
-                            />
-                        ))}
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* TABS */}
-            <Tabs defaultValue="customize">
-                <TabsList className="w-full">
-                    <TabsTrigger value="customize" className="flex-1">
-                        Customize
-                    </TabsTrigger>
-                    <TabsTrigger value="install" className="flex-1">
-                        Install
-                    </TabsTrigger>
-                </TabsList>
-                <TabsContent value="customize">
-                    <IosCustomization onValuesChange={setFormValues} />
-                </TabsContent>
-                <TabsContent value="install">
-                    <IosInstall params={params} />
-                </TabsContent>
-            </Tabs>
+        <div className="flex min-h-screen items-center justify-center p-4">
+            <div className="flex flex-col gap-4 items-center justify-center w-full max-w-lg">
+                {/* THE PREVIEW */}
+                <Card style={{ width, height, backgroundColor: formValues.bgColor }}>
+                    <CardContent className="h-full content-end">
+                        <div
+                            className={'justify-center'}
+                            style={{
+                                display: "grid",
+                                gridTemplateColumns: `repeat(${formValues.columns}, ${cellSize}px)`,
+                                gap: "4px",
+                            }}
+                        >
+                            {Array.from({ length: total }, (_, i) => (
+                                <div
+                                    key={"some" + i}
+                                    style={{
+                                        width: cellSize,
+                                        height: cellSize,
+                                        backgroundColor:
+                                            i <= passed
+                                                ? formValues.passedColor
+                                                : formValues.leftColor,
+                                        borderRadius,
+                                    }}
+                                />
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
+                {/* TABS */}
+                <Tabs defaultValue="install" className={' w-full'}>
+                    <TabsList className="w-full">
+                        <TabsTrigger value="install" className="flex-1">
+                            Install
+                        </TabsTrigger>
+                        <TabsTrigger value="customize" className="flex-1">
+                            Customize
+                        </TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="install">
+                        <IosInstall params={params} />
+                    </TabsContent>
+                    <TabsContent value="customize">
+                        <IosCustomization onValuesChange={setFormValues} />
+                    </TabsContent>
+                </Tabs>
+            </div>
         </div>
     );
 }

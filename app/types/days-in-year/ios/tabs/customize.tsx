@@ -92,7 +92,7 @@ export default function IosCustomization({ onValuesChange }: Props) {
     }, [ form, onValuesChange ]);
 
     return (
-        <form className="space-y-6 pt-4 max-w-lg w-full">
+        <form className="space-y-6 pt-4 max-w-lg w-full flex flex-col">
             <FieldGroup>
                 {/* Box Width */}
                 <Controller
