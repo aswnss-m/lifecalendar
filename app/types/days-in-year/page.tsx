@@ -1,33 +1,34 @@
-"use client";
+import { AndroidLogo, AppleLogo } from "@/components/logos/os-logos";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useModelScaler } from "@/hooks/use-model-scaler";
-import { daysPassed, totalDays } from "@/lib/days-in-year";
-import { Iphone } from "@/lib/sizes";
-import { cn } from "@/lib/utils";
-import IosTab from "./tabs/ios-tab";
+import { IconApple } from "@tabler/icons-react";
+import Image from "next/image";
+import Link from "next/link";
 
 export default function DaysInYearPage() {
-    const passed = daysPassed()
-    const total = totalDays()
-    const model = Iphone[ "17" ];
-    const { x_scale, y_scale, width, height } = useModelScaler(model, {
-        maxHeight: 700,
-    });
     return (
-        <section className={'w-full min-h-screen h-full flex justify-center'}>
-            <Tabs defaultValue="ios">
-                <TabsList className={'bg-red-400 w-full max-w-md'}>
-                    <TabsTrigger value="ios" >ios</TabsTrigger>
-                    <TabsTrigger value="android">android</TabsTrigger>
-                </TabsList>
-                <TabsContent value="ios">
-                    <IosTab />
-                </TabsContent>
-                <TabsContent value="android">
+        <section className={'w-full min-h-screen h-full flex justify-center items-center'}>
+            <div className="flex flex-col items-center justify-center gap-2">
+                <h1 className={'text-muted-foreground'}>Select your OS</h1>
+                <div className="flex gap-4 items-center justify-center flex-wrap">
+                    <Link href={'/types/days-in-year/ios'}>
+                        <Card className={'aspect-square size-25 items-center justify-center cursor-pointer group hover:bg-accent'}>
+                            <CardContent className={'items-center justify-center p-2'}>
+                                <AppleLogo className={'size-12 text-foreground group-hover:text-accent-foreground  transition-colors'} />
+                                <h1 className={'text-center font-semibold'}>ios</h1>
+                            </CardContent>
+                        </Card>
+                    </Link>
 
-                </TabsContent>
-            </Tabs>
+                    <Link href={'/types/days-in-year/android'}>
+                        <Card className={'aspect-square size-25 items-center justify-center cursor-pointer group hover:bg-accent'}>
+                            <CardContent className={'items-center justify-center flex flex-col p-2'}>
+                                <AndroidLogo className={'size-12 text-foreground group-hover:text-accent-foreground transition-colors'} />
+                                <h1 className={'text-center font-semibold'}>android</h1>
+                            </CardContent>
+                        </Card>
+                    </Link>
+                </div>
+            </div>
         </section>
     );
 }

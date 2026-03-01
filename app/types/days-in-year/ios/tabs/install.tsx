@@ -141,7 +141,7 @@ export default function IosInstall({ params }: Props) {
                                     <button
                                         type="button"
                                         onClick={handleCopy}
-                                        className="shrink-0 h-[34px] w-[34px] border border-border flex items-center justify-center hover:bg-foreground hover:text-background transition-colors"
+                                        className="shrink-0 size-8 border border-border flex items-center justify-center hover:bg-foreground hover:text-background transition-colors"
                                         aria-label="Copy URL"
                                     >
                                         {copied ? (

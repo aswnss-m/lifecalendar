@@ -11,8 +11,8 @@ import { Iphone } from "@/lib/sizes";
 import IosCustomization, {
     defaultValues,
     type FormValues,
-} from "./ios/customize";
-import IosInstall from "./ios/install";
+} from "./tabs/customize";
+import IosInstall from "./tabs/install";
 
 export default function IosTab() {
     const passed = daysPassed();
