@@ -75,6 +75,7 @@ export default function IosTab() {
             <Card style={{ width, height, backgroundColor: values.bgColor }}>
                 <CardContent className="h-full content-end">
                     <div
+                        className={'justify-center'}
                         style={{
                             display: "grid",
                             gridTemplateColumns: `repeat(${values.columns}, ${cellSize}px)`,
