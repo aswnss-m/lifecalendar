@@ -8,13 +8,17 @@ import z from "zod";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
     Field,
+    FieldDescription,
     FieldError,
     FieldGroup,
     FieldLabel,
+    FieldLegend,
+    FieldSet,
 } from "@/components/ui/field";
 import { Slider } from "@/components/ui/slider";
 import { useModelScaler } from "@/hooks/use-model-scaler";
 import { Iphone } from "@/lib/sizes";
+import { Card, CardContent } from "@/components/ui/card";
 
 const formSchema = z.object({
     boxWidth: z.number().min(10).max(50),
@@ -93,191 +97,218 @@ export default function IosCustomization({ onValuesChange }: Props) {
 
     return (
         <form className="space-y-6 pt-4 max-w-lg w-full flex flex-col">
-            <FieldGroup>
-                {/* Box Width */}
-                <Controller
-                    name="boxWidth"
-                    control={form.control}
-                    render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid}>
-                            <FieldLabel htmlFor={field.name}>
-                                Box Width — {field.value}px
-                            </FieldLabel>
-                            <Slider
-                                id={field.name}
-                                min={10}
-                                max={50}
-                                step={1}
-                                value={[ field.value ]}
-                                onValueChange={(vals) =>
-                                    field.onChange(vals[ 0 ])
-                                }
-                                aria-invalid={fieldState.invalid}
-                            />
-                            {fieldState.invalid && (
-                                <FieldError errors={[ fieldState.error ]} />
-                            )}
-                        </Field>
-                    )}
-                />
 
-                {/* Columns */}
-                <Controller
-                    name="columns"
-                    control={form.control}
-                    render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid}>
-                            <FieldLabel htmlFor={field.name}>
-                                Columns — {field.value}
-                            </FieldLabel>
-                            <Slider
-                                id={field.name}
-                                min={5}
-                                max={20}
-                                step={5}
-                                value={[ field.value ]}
-                                onValueChange={(vals) =>
-                                    field.onChange(vals[ 0 ])
-                                }
-                                aria-invalid={fieldState.invalid}
-                            />
-                            {fieldState.invalid && (
-                                <FieldError errors={[ fieldState.error ]} />
-                            )}
-                        </Field>
-                    )}
-                />
+            <FieldSet>
+                <FieldLegend>
+                    Grid
+                </FieldLegend>
 
-                {/* Days Passed Color */}
-                <Controller
-                    name="passedColor"
-                    control={form.control}
-                    render={({ field, fieldState }) => (
-                        <Field
-                            orientation="horizontal"
-                            data-invalid={fieldState.invalid}
-                        >
-                            <FieldLabel htmlFor={field.name}>
-                                Days Passed Color
-                            </FieldLabel>
-                            <input
-                                {...field}
-                                id={field.name}
-                                type="color"
-                                className="h-8 w-14 cursor-pointer rounded border p-0.5"
-                                aria-invalid={fieldState.invalid}
-                            />
-                            {fieldState.invalid && (
-                                <FieldError errors={[ fieldState.error ]} />
-                            )}
-                        </Field>
-                    )}
-                />
+                <FieldDescription>
+                    Set the size and shape of each day cell
+                </FieldDescription>
+                <FieldGroup className={'space-y-2'}>
+                    {/* Box Width */}
+                    <Controller
+                        name="boxWidth"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name} className={'flex justify-between'}>
+                                    <span>Width</span>
+                                    <span className={'text-muted-foreground'}>{field.value}px</span>
+                                </FieldLabel>
+                                <Slider
+                                    id={field.name}
+                                    min={10}
+                                    max={50}
+                                    step={1}
+                                    value={[ field.value ]}
+                                    onValueChange={(vals) =>
+                                        field.onChange(vals[ 0 ])
+                                    }
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                {fieldState.invalid && (
+                                    <FieldError errors={[ fieldState.error ]} />
+                                )}
+                            </Field>
+                        )}
+                    />
 
-                {/* Days Left Color */}
-                <Controller
-                    name="leftColor"
-                    control={form.control}
-                    render={({ field, fieldState }) => (
-                        <Field
-                            orientation="horizontal"
-                            data-invalid={fieldState.invalid}
-                        >
-                            <FieldLabel htmlFor={field.name}>
-                                Days Left Color
-                            </FieldLabel>
-                            <input
-                                {...field}
-                                id={field.name}
-                                type="color"
-                                className="h-8 w-14 cursor-pointer rounded border p-0.5"
-                                aria-invalid={fieldState.invalid}
-                            />
-                            {fieldState.invalid && (
-                                <FieldError errors={[ fieldState.error ]} />
-                            )}
-                        </Field>
-                    )}
-                />
+                    {/* Columns */}
+                    <Controller
+                        name="columns"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name} className={'flex justify-between'}>
+                                    <span>Columns</span>
+                                    <span className={'text-muted-foreground'}>{field.value}</span>
+                                </FieldLabel>
+                                <Slider
+                                    id={field.name}
+                                    min={5}
+                                    max={20}
+                                    step={5}
+                                    value={[ field.value ]}
+                                    onValueChange={(vals) =>
+                                        field.onChange(vals[ 0 ])
+                                    }
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                {fieldState.invalid && (
+                                    <FieldError errors={[ fieldState.error ]} />
+                                )}
+                            </Field>
+                        )}
+                    />
 
-                {/* Background Color */}
-                <Controller
-                    name="bgColor"
-                    control={form.control}
-                    render={({ field, fieldState }) => (
-                        <Field
-                            orientation="horizontal"
-                            data-invalid={fieldState.invalid}
-                        >
-                            <FieldLabel htmlFor={field.name}>
-                                Background Color
-                            </FieldLabel>
-                            <input
-                                {...field}
-                                id={field.name}
-                                type="color"
-                                className="h-8 w-14 cursor-pointer rounded border p-0.5"
-                                aria-invalid={fieldState.invalid}
-                            />
-                            {fieldState.invalid && (
-                                <FieldError errors={[ fieldState.error ]} />
-                            )}
-                        </Field>
-                    )}
-                />
+                    {/* Corner Radius */}
+                    <Controller
+                        name="radius"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                            <Field data-invalid={fieldState.invalid}>
+                                <FieldLabel htmlFor={field.name} className={'flex justify-between'}>
+                                    <span>Corner Radius</span>
+                                    <span className={'text-muted-foreground'}>{field.value}%</span>
+                                </FieldLabel>
+                                <Slider
+                                    id={field.name}
+                                    min={0}
+                                    max={100}
+                                    value={[ field.value ]}
+                                    onValueChange={(vals) =>
+                                        field.onChange(vals[ 0 ])
+                                    }
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                {fieldState.invalid && (
+                                    <FieldError errors={[ fieldState.error ]} />
+                                )}
+                            </Field>
+                        )}
+                    />
 
-                {/* Show Percentage */}
-                <Controller
-                    name="showPercentage"
-                    control={form.control}
-                    render={({ field, fieldState }) => (
-                        <Field
-                            orientation="horizontal"
-                            data-invalid={fieldState.invalid}
-                        >
-                            <FieldLabel htmlFor={field.name}>
-                                Show Percentage
-                            </FieldLabel>
-                            <Checkbox
-                                id={field.name}
-                                name={field.name}
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                                aria-invalid={fieldState.invalid}
-                            />
-                            {fieldState.invalid && (
-                                <FieldError errors={[ fieldState.error ]} />
-                            )}
-                        </Field>
-                    )}
-                />
+                </FieldGroup>
+            </FieldSet>
+            <FieldSet>
+                <FieldLegend>
+                    Colors
+                </FieldLegend>
 
-                {/* Corner Radius */}
-                <Controller
-                    name="radius"
-                    control={form.control}
-                    render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid}>
-                            <FieldLabel htmlFor={field.name}>
-                                Corner Radius — {field.value}%
-                            </FieldLabel>
-                            <Slider
-                                id={field.name}
-                                min={0}
-                                max={100}
-                                value={[ field.value ]}
-                                onValueChange={(vals) =>
-                                    field.onChange(vals[ 0 ])
-                                }
-                                aria-invalid={fieldState.invalid}
-                            />
-                            {fieldState.invalid && (
-                                <FieldError errors={[ fieldState.error ]} />
-                            )}
-                        </Field>
-                    )}
-                />
-            </FieldGroup>
-        </form>
+                <FieldDescription>
+                    Pick colors for each part of the wallpaper
+                </FieldDescription>
+                <FieldGroup className={'space-y-2'}>
+                    {/* Days Passed Color */}
+                    <Controller
+                        name="passedColor"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                            <Field
+                                orientation="horizontal"
+                                data-invalid={fieldState.invalid}
+                            >
+                                <FieldLabel htmlFor={field.name}>
+                                    Days Passed Color
+                                </FieldLabel>
+                                <input
+                                    {...field}
+                                    id={field.name}
+                                    type="color"
+                                    className="h08 w-14 cursor-pointer rounded border p-0.5"
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                {fieldState.invalid && (
+                                    <FieldError errors={[ fieldState.error ]} />
+                                )}
+                            </Field>
+                        )}
+                    />
+
+                    {/* Days Left Color */}
+                    <Controller
+                        name="leftColor"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                            <Field
+                                orientation="horizontal"
+                                data-invalid={fieldState.invalid}
+                            >
+                                <FieldLabel htmlFor={field.name}>
+                                    Days Left Color
+                                </FieldLabel>
+                                <input
+                                    {...field}
+                                    id={field.name}
+                                    type="color"
+                                    className="h-8 w-14 cursor-pointer rounded border p-0.5"
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                {fieldState.invalid && (
+                                    <FieldError errors={[ fieldState.error ]} />
+                                )}
+                            </Field>
+                        )}
+                    />
+
+                    {/* Background Color */}
+                    <Controller
+                        name="bgColor"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                            <Field
+                                orientation="horizontal"
+                                data-invalid={fieldState.invalid}
+                            >
+                                <FieldLabel htmlFor={field.name}>
+                                    Background Color
+                                </FieldLabel>
+                                <input
+                                    {...field}
+                                    id={field.name}
+                                    type="color"
+                                    className="h-8 w-14 cursor-pointer rounded border p-0.5"
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                {fieldState.invalid && (
+                                    <FieldError errors={[ fieldState.error ]} />
+                                )}
+                            </Field>
+                        )}
+                    />
+
+                    {/* Show Percentage */}
+                    <Controller
+                        name="showPercentage"
+                        control={form.control}
+                        render={({ field, fieldState }) => (
+                            <Field
+                                orientation="horizontal"
+                                data-invalid={fieldState.invalid}
+                            >
+                                <FieldLabel htmlFor={field.name}>
+                                    Show Percentage
+                                </FieldLabel>
+                                <Checkbox
+                                    id={field.name}
+                                    name={field.name}
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                    aria-invalid={fieldState.invalid}
+                                />
+                                {fieldState.invalid && (
+                                    <FieldError errors={[ fieldState.error ]} />
+                                )}
+                            </Field>
+                        )}
+                    />
+
+
+
+                </FieldGroup>
+            </FieldSet>
+        </form >
     );
 }
