@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default function DaysInYearPage() {
     return (
-        <section className={'w-full min-h-screen h-full flex justify-center items-center'}>
+        <section className={'w-full grow h-full flex justify-center items-center'}>
             <div className="flex flex-col items-center justify-center gap-2">
                 <h1 className={'text-muted-foreground'}>Select your OS</h1>
                 <div className="flex gap-4 items-center justify-center flex-wrap">
