@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 
 interface Props {
     params: URLSearchParams;
+    style: "flat" | "monthly";
+    onStyleChange: (style: "flat" | "monthly") => void;
 }
 
 function StepBadge({ n }: { n: number }) {
@@ -24,7 +26,7 @@ function StepBadge({ n }: { n: number }) {
     );
 }
 
-export default function IosInstall({ params }: Props) {
+export default function IosInstall({ params, style, onStyleChange }: Props) {
     const [ copied, setCopied ] = useState(false);
 
     const url = useMemo(() => {
@@ -43,6 +45,22 @@ export default function IosInstall({ params }: Props) {
 
     return (
         <div className="flex flex-col gap-6 pt-4 max-w-lg w-full">
+            {/* Style selector */}
+            <div className="flex flex-col gap-1.5">
+                <label htmlFor="style-select" className="text-sm font-medium">
+                    Style
+                </label>
+                <select
+                    id="style-select"
+                    value={style}
+                    onChange={(e) => onStyleChange(e.target.value as "flat" | "monthly")}
+                    className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                >
+                    <option value="flat">Days (all days of the year)</option>
+                    <option value="monthly">Monthly Groups</option>
+                </select>
+            </div>
+
             <div className="space-y-1">
                 <h2 className="text-2xl font-bold tracking-tight">
                     Installation Steps

@@ -48,9 +48,10 @@ export const defaultValues: FormValues = {
 
 interface Props {
     onValuesChange: (values: FormValues) => void;
+    style: "flat" | "monthly";
 }
 
-export default function IosCustomization({ onValuesChange }: Props) {
+export default function IosCustomization({ onValuesChange, style }: Props) {
     const { x_scale, width } = useModelScaler(Iphone[ "17" ], {
         maxHeight: 500,
     });
@@ -139,33 +140,35 @@ export default function IosCustomization({ onValuesChange }: Props) {
                         )}
                     />
 
-                    {/* Columns */}
-                    <Controller
-                        name="columns"
-                        control={form.control}
-                        render={({ field, fieldState }) => (
-                            <Field data-invalid={fieldState.invalid}>
-                                <FieldLabel htmlFor={field.name} className={'flex justify-between'}>
-                                    <span>Columns</span>
-                                    <span className={'text-muted-foreground'}>{field.value}</span>
-                                </FieldLabel>
-                                <Slider
-                                    id={field.name}
-                                    min={5}
-                                    max={20}
-                                    step={5}
-                                    value={[ field.value ]}
-                                    onValueChange={(vals) =>
-                                        field.onChange(vals[ 0 ])
-                                    }
-                                    aria-invalid={fieldState.invalid}
-                                />
-                                {fieldState.invalid && (
-                                    <FieldError errors={[ fieldState.error ]} />
-                                )}
-                            </Field>
-                        )}
-                    />
+                    {/* Columns — not applicable for monthly style */}
+                    {style === "flat" && (
+                        <Controller
+                            name="columns"
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor={field.name} className={'flex justify-between'}>
+                                        <span>Columns</span>
+                                        <span className={'text-muted-foreground'}>{field.value}</span>
+                                    </FieldLabel>
+                                    <Slider
+                                        id={field.name}
+                                        min={5}
+                                        max={20}
+                                        step={5}
+                                        value={[ field.value ]}
+                                        onValueChange={(vals) =>
+                                            field.onChange(vals[ 0 ])
+                                        }
+                                        aria-invalid={fieldState.invalid}
+                                    />
+                                    {fieldState.invalid && (
+                                        <FieldError errors={[ fieldState.error ]} />
+                                    )}
+                                </Field>
+                            )}
+                        />
+                    )}
 
                     {/* Corner Radius */}
                     <Controller

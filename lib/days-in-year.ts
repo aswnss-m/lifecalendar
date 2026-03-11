@@ -1,3 +1,11 @@
+export function monthsData(year?: number): { name: string; days: number }[] {
+	const y = year ?? new Date().getFullYear();
+	return Array.from({ length: 12 }, (_, m) => ({
+		name: new Date(y, m, 1).toLocaleString("default", { month: "short" }),
+		days: new Date(y, m + 1, 0).getDate(),
+	}));
+}
+
 export function totalDays(year?: number): number {
 	const y = year ?? new Date().getFullYear();
 	const startDate = new Date(y, 0, 1);
