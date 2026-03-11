@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 	const model = Iphone["17"];
 
 	const { scale } = createModelScaler(model, { maxHeight: 500 });
-	const padding = Math.round(24 / scale);
+	const padding = Math.round(40 / scale);
 
 	const passed = daysPassed();
 	const total = totalDays();
@@ -43,8 +43,8 @@ export async function GET(request: NextRequest) {
 
 	const statsElements = showPercentage
 		? `
-  <text x="${cx}" y="${textY}" font-family="sans-serif" font-size="${fontSize}" text-anchor="middle" dominant-baseline="alphabetic">
-    <tspan fill="${daysLeftColor}">${daysLeft}d left · </tspan><tspan fill="${percentColor}">${percentage}%</tspan>
+  <text x="${cx}" y="${textY}" font-family="sans-serif" font-size="${fontSize}" text-anchor="middle" fill="${daysLeftColor}">
+    ${daysLeft}d left · <tspan fill="${percentColor}">${percentage}%</tspan>
   </text>`
 		: "";
 

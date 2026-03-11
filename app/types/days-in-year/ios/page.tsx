@@ -62,7 +62,7 @@ export default function IosTab() {
             <div className="flex flex-col gap-4 items-center justify-center w-full max-w-lg">
                 {/* THE PREVIEW */}
                 <Card style={{ width, height, backgroundColor: formValues.bgColor }}>
-                    <CardContent className="h-full flex flex-col pb-3 content-end items-center">
+                    <CardContent className="h-full flex flex-col pb-6 content-end items-center">
                         {style === "flat" ? (
                             <>
                                 {/* push flat grid to the bottom */}
