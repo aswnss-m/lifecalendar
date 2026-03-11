@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTheme } from "next-themes";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,12 +10,14 @@ import { daysPassed, monthsData, totalDays } from "@/lib/days-in-year";
 import { Iphone } from "@/lib/sizes";
 
 import IosCustomization, {
-    defaultValues,
+    darkDefaults,
+    lightDefaults,
     type FormValues,
 } from "./tabs/customize";
 import IosInstall from "./tabs/install";
 
 export default function IosTab() {
+    const { resolvedTheme } = useTheme();
     const passed = daysPassed();
     const total = totalDays();
     const daysLeft = total - passed;
@@ -24,7 +27,8 @@ export default function IosTab() {
         maxHeight: 500,
     });
 
-    const [ formValues, setFormValues ] = useState<FormValues>(defaultValues);
+    const themeDefaults = resolvedTheme === "light" ? lightDefaults : darkDefaults;
+    const [ formValues, setFormValues ] = useState<FormValues>(themeDefaults);
     const [ style, setStyle ] = useState<"flat" | "monthly">("flat");
 
     const params = useMemo(() => {
@@ -39,6 +43,7 @@ export default function IosTab() {
         p.set("daysLeftColor", formValues.daysLeftColor.replace("#", ""));
         p.set("percentColor", formValues.percentColor.replace("#", ""));
         p.set("radius", String(formValues.radius));
+        p.set("monthLabelColor", formValues.monthLabelColor.replace("#", ""));
         return p;
     }, [ formValues, style ]);
 
@@ -107,8 +112,7 @@ export default function IosTab() {
                                             <div key={mi} style={{ display: "flex", flexDirection: "column", gap: LABEL_GAP }}>
                                                 <span style={{
                                                     fontSize: LABEL_FONT,
-                                                    color: formValues.leftColor,
-                                                    opacity: 0.7,
+                                                    color: formValues.monthLabelColor,
                                                     lineHeight: 1,
                                                 }}>
                                                     {month.name}
@@ -172,7 +176,7 @@ export default function IosTab() {
                         <IosInstall params={params} style={style} onStyleChange={setStyle} />
                     </TabsContent>
                     <TabsContent value="customize">
-                        <IosCustomization onValuesChange={setFormValues} style={style} />
+                        <IosCustomization onValuesChange={setFormValues} style={style} initialValues={themeDefaults} />
                     </TabsContent>
                 </Tabs>
             </div>

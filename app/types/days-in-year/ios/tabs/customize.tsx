@@ -30,36 +30,61 @@ const formSchema = z.object({
     daysLeftColor: z.string(),
     percentColor: z.string(),
     radius: z.number().min(0).max(100),
+    monthLabelColor: z.string(),
 });
 
 export type FormValues = z.infer<typeof formSchema>;
 
-export const defaultValues: FormValues = {
+const baseValues = {
     boxWidth: 25,
     columns: 10,
-    passedColor: "#ef4444",
-    leftColor: "#fecaca",
-    bgColor: "#6b7280",
     showPercentage: true,
-    daysLeftColor: "#ffffff",
-    percentColor: "#ffffff",
     radius: 0,
+} as const;
+
+export const darkDefaults: FormValues = {
+    ...baseValues,
+    bgColor: "#121212",
+    passedColor: "#E8E5DF",
+    leftColor: "#2C2C2C",
+    daysLeftColor: "#E8E5DF",
+    percentColor: "#666666",
+    monthLabelColor: "#4A4A4A",
 };
+
+export const lightDefaults: FormValues = {
+    ...baseValues,
+    bgColor: "#FAF9F6",
+    passedColor: "#1A1A1A",
+    leftColor: "#DDD9D2",
+    daysLeftColor: "#1A1A1A",
+    percentColor: "#888888",
+    monthLabelColor: "#AAAAAA",
+};
+
+export const defaultValues = darkDefaults;
 
 interface Props {
     onValuesChange: (values: FormValues) => void;
     style: "flat" | "monthly";
+    initialValues: FormValues;
 }
 
-export default function IosCustomization({ onValuesChange, style }: Props) {
+export default function IosCustomization({ onValuesChange, style, initialValues }: Props) {
     const { x_scale, width } = useModelScaler(Iphone[ "17" ], {
         maxHeight: 500,
     });
 
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
-        defaultValues,
+        defaultValues: initialValues,
     });
+
+    // Reset to new theme defaults when the theme first resolves (undefined → "dark"/"light").
+    useEffect(() => {
+        form.reset(initialValues);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [ initialValues ]);
 
     const values = form.watch();
     const { setError, clearErrors } = form;
@@ -285,6 +310,34 @@ export default function IosCustomization({ onValuesChange, style }: Props) {
                             </Field>
                         )}
                     />
+
+                    {/* Month Label Color — only for monthly style */}
+                    {style === "monthly" && (
+                        <Controller
+                            name="monthLabelColor"
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                                <Field
+                                    orientation="horizontal"
+                                    data-invalid={fieldState.invalid}
+                                >
+                                    <FieldLabel htmlFor={field.name}>
+                                        Month Label Color
+                                    </FieldLabel>
+                                    <input
+                                        {...field}
+                                        id={field.name}
+                                        type="color"
+                                        className="h-8 w-14 cursor-pointer rounded border p-0.5"
+                                        aria-invalid={fieldState.invalid}
+                                    />
+                                    {fieldState.invalid && (
+                                        <FieldError errors={[ fieldState.error ]} />
+                                    )}
+                                </Field>
+                            )}
+                        />
+                    )}
 
                     {/* Show Percentage */}
                     <Controller

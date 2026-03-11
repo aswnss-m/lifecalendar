@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
 	const showPercentage = searchParams.get("showPercentage") !== "false";
 	const daysLeftColor = "#" + (searchParams.get("daysLeftColor") ?? "ffffff");
 	const percentColor = "#" + (searchParams.get("percentColor") ?? "ffffff");
+	const monthLabelColor = "#" + (searchParams.get("monthLabelColor") ?? "ffffff");
 
 	const model = Iphone["17"];
 
@@ -81,7 +82,7 @@ export async function GET(request: NextRequest) {
 			// Month label
 			const labelY = monthY + labelFontSize;
 			monthElements.push(
-				`<text x="${monthX}" y="${labelY}" font-family="sans-serif" font-size="${labelFontSize}" fill="${leftColor}" opacity="0.7">${month.name}</text>`
+				`<text x="${monthX}" y="${labelY}" font-family="sans-serif" font-size="${labelFontSize}" fill="${monthLabelColor}">${month.name}</text>`
 			);
 
 			// Dots

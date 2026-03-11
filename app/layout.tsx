@@ -18,6 +18,18 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Custom Life Calendar",
   description: "Minimalist wallpapers for mindful living. Visualize your life progress or year at a glance.",
+  icons: [
+    {
+      media: "(prefers-color-scheme: light)",
+      url: "/favicon_light.ico",
+      href: "/favicon_light.ico",
+    },
+    {
+      media: "(prefers-color-scheme: dark)",
+      url: "/favicon_dark.ico",
+      href: "/favicon_dark.ico",
+    }
+  ]
 };
 
 export default function RootLayout({
