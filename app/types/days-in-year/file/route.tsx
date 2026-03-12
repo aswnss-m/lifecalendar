@@ -1,5 +1,6 @@
+export const runtime = 'edge';
 import { NextRequest } from "next/server";
-import { ImageResponse } from "@vercel/og";
+import { ImageResponse } from "next/og";
 
 import { daysPassed, monthsData, totalDays } from "@/lib/days-in-year";
 import { Iphone } from "@/lib/sizes";
