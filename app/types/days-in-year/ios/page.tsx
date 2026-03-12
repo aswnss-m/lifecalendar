@@ -23,13 +23,14 @@ export default function IosTab() {
     const daysLeft = total - passed;
     const percentage = Math.round((passed / total) * 100);
     const months = monthsData();
-    const { x_scale, width, height } = useModelScaler(Iphone[ "17" ], {
-        maxHeight: 500,
-    });
-
     const themeDefaults = resolvedTheme === "light" ? lightDefaults : darkDefaults;
     const [ formValues, setFormValues ] = useState<FormValues>(themeDefaults);
     const [ style, setStyle ] = useState<"flat" | "monthly">("flat");
+    const [ selectedModel, setSelectedModel ] = useState<keyof typeof Iphone>("17");
+
+    const { x_scale, width, height } = useModelScaler(Iphone[selectedModel], {
+        maxHeight: 500,
+    });
 
     const params = useMemo(() => {
         const p = new URLSearchParams();
@@ -44,8 +45,9 @@ export default function IosTab() {
         p.set("percentColor", formValues.percentColor.replace("#", ""));
         p.set("radius", String(formValues.radius));
         p.set("monthLabelColor", formValues.monthLabelColor.replace("#", ""));
+        p.set("model", selectedModel);
         return p;
-    }, [ formValues, style ]);
+    }, [ formValues, style, selectedModel ]);
 
     const cellSize = x_scale(formValues.boxWidth);
     const borderRadius = `${formValues.radius}%`;
@@ -173,7 +175,7 @@ export default function IosTab() {
                         </TabsTrigger>
                     </TabsList>
                     <TabsContent value="install">
-                        <IosInstall params={params} style={style} onStyleChange={setStyle} />
+                        <IosInstall params={params} style={style} onStyleChange={setStyle} model={selectedModel} onModelChange={setSelectedModel} />
                     </TabsContent>
                     <TabsContent value="customize">
                         <IosCustomization onValuesChange={setFormValues} style={style} initialValues={themeDefaults} />
