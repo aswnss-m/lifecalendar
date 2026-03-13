@@ -21,7 +21,8 @@ export async function GET(request: NextRequest) {
 	const monthLabelColor =
 		"#" + (searchParams.get("monthLabelColor") ?? "ffffff");
 
-	const model = Iphone["17"];
+	const modelKey = (searchParams.get("model") ?? "17") as keyof typeof Iphone;
+	const model = Iphone[modelKey] ?? Iphone["17"];
 
 	// Same scale the preview uses — maps preview-space px → model-space px
 	const previewScale = 500 / model.height;

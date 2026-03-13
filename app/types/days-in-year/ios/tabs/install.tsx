@@ -1,7 +1,7 @@
 "use client";
 
-import { CheckIcon, CopyIcon } from "lucide-react";
-import { useMemo, useState } from "react";
+import { CheckIcon, CopyIcon, ChevronDownIcon } from "lucide-react";
+import { useMemo, useState, useRef, useEffect } from "react";
 
 import {
     Card,
@@ -11,11 +11,14 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Iphone } from "@/lib/sizes";
 
 interface Props {
     params: URLSearchParams;
     style: "flat" | "monthly";
     onStyleChange: (style: "flat" | "monthly") => void;
+    model: keyof typeof Iphone;
+    onModelChange: (model: keyof typeof Iphone) => void;
 }
 
 function StepBadge({ n }: { n: number }) {
@@ -26,7 +29,78 @@ function StepBadge({ n }: { n: number }) {
     );
 }
 
-export default function IosInstall({ params, style, onStyleChange }: Props) {
+function ModelCombobox({ model, onModelChange }: { model: keyof typeof Iphone; onModelChange: (m: keyof typeof Iphone) => void }) {
+    const [ open, setOpen ] = useState(false);
+    const [ search, setSearch ] = useState("");
+    const containerRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    const allModels = Object.keys(Iphone) as (keyof typeof Iphone)[];
+    const filtered = allModels.filter((m) =>
+        `iphone ${m}`.includes(search.toLowerCase()) || m.includes(search.toLowerCase())
+    );
+
+    useEffect(() => {
+        if (open) inputRef.current?.focus();
+    }, [ open ]);
+
+    useEffect(() => {
+        function handleClickOutside(e: MouseEvent) {
+            if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+                setOpen(false);
+                setSearch("");
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    return (
+        <div ref={containerRef} className="relative">
+            <button
+                type="button"
+                onClick={() => { setOpen((o) => !o); setSearch(""); }}
+                className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring flex items-center justify-between"
+            >
+                <span>iPhone {model} ({Iphone[model].width}×{Iphone[model].height})</span>
+                <ChevronDownIcon className="size-4 text-muted-foreground shrink-0" />
+            </button>
+
+            {open && (
+                <div className="absolute z-50 mt-1 w-full rounded-md border border-input bg-background shadow-md">
+                    <div className="p-1.5 border-b border-input">
+                        <input
+                            ref={inputRef}
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder="Search model..."
+                            className="w-full rounded-sm bg-transparent px-2 py-1 text-sm outline-none placeholder:text-muted-foreground"
+                        />
+                    </div>
+                    <div className="max-h-52 overflow-y-auto py-1">
+                        {filtered.length === 0 ? (
+                            <p className="px-3 py-2 text-sm text-muted-foreground">No results</p>
+                        ) : (
+                            filtered.map((m) => (
+                                <button
+                                    key={m}
+                                    type="button"
+                                    onClick={() => { onModelChange(m); setOpen(false); setSearch(""); }}
+                                    className={`w-full text-left px-3 py-1.5 text-sm flex items-center justify-between hover:bg-accent hover:text-accent-foreground ${m === model ? "bg-accent/50" : ""}`}
+                                >
+                                    <span>iPhone {m}</span>
+                                    <span className="text-xs text-muted-foreground">{Iphone[m].width}×{Iphone[m].height}</span>
+                                </button>
+                            ))
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+export default function IosInstall({ params, style, onStyleChange, model, onModelChange }: Props) {
     const [ copied, setCopied ] = useState(false);
 
     const url = useMemo(() => {
@@ -45,6 +119,12 @@ export default function IosInstall({ params, style, onStyleChange }: Props) {
 
     return (
         <div className="flex flex-col gap-6 pt-4 max-w-lg w-full">
+            {/* Model selector */}
+            <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium">iPhone Model</label>
+                <ModelCombobox model={model} onModelChange={onModelChange} />
+            </div>
+
             {/* Style selector */}
             <div className="flex flex-col gap-1.5">
                 <label htmlFor="style-select" className="text-sm font-medium">
@@ -166,21 +246,20 @@ export default function IosInstall({ params, style, onStyleChange }: Props) {
                                         → paste the following URL:
                                     </span>
                                 </p>
-                                <div className="flex gap-2 min-w-0 max-w-sm">
-                                    <div className="flex-1 min-w-0 bg-muted rounded-lg px-3 py-2 text-xs font-mono truncate text-muted-foreground select-all" suppressHydrationWarning>
+                                <div className="flex flex-col gap-2 min-w-0">
+                                    <div className="min-w-0 bg-muted rounded-lg px-3 py-2 text-xs font-mono truncate text-muted-foreground select-all" suppressHydrationWarning>
                                         {url}
                                     </div>
-
                                     <Button
                                         type="button"
                                         onClick={handleCopy}
-                                        size="icon-sm"
+                                        className="w-full"
                                         aria-label="Copy URL"
                                     >
                                         {copied ? (
-                                            <CheckIcon className="size-3" />
+                                            <><CheckIcon className="size-4" /> Copied</>
                                         ) : (
-                                            <CopyIcon className="size-3" />
+                                            <><CopyIcon className="size-4" /> Copy URL</>
                                         )}
                                     </Button>
                                 </div>
