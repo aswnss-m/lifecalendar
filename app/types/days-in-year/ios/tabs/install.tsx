@@ -246,21 +246,20 @@ export default function IosInstall({ params, style, onStyleChange, model, onMode
                                         → paste the following URL:
                                     </span>
                                 </p>
-                                <div className="flex gap-2 min-w-0 max-w-sm">
-                                    <div className="flex-1 min-w-0 bg-muted rounded-lg px-3 py-2 text-xs font-mono truncate text-muted-foreground select-all" suppressHydrationWarning>
+                                <div className="flex flex-col gap-2 min-w-0">
+                                    <div className="min-w-0 bg-muted rounded-lg px-3 py-2 text-xs font-mono truncate text-muted-foreground select-all" suppressHydrationWarning>
                                         {url}
                                     </div>
-
                                     <Button
                                         type="button"
                                         onClick={handleCopy}
-                                        size="icon-sm"
+                                        className="w-full"
                                         aria-label="Copy URL"
                                     >
                                         {copied ? (
-                                            <CheckIcon className="size-3" />
+                                            <><CheckIcon className="size-4" /> Copied</>
                                         ) : (
-                                            <CopyIcon className="size-3" />
+                                            <><CopyIcon className="size-4" /> Copy URL</>
                                         )}
                                     </Button>
                                 </div>
