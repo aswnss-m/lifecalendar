@@ -195,6 +195,11 @@ export async function GET(request: NextRequest) {
 
 	// ── Response ──────────────────────────────────────────────────────────────────
 
+	const now = new Date();
+	const midnight = new Date(now);
+	midnight.setUTCHours(24, 0, 0, 0);
+	const secondsUntilMidnight = Math.floor((midnight.getTime() - now.getTime()) / 1000);
+
 	return new ImageResponse(
 		(
 			<div
@@ -218,6 +223,9 @@ export async function GET(request: NextRequest) {
 		{
 			width: model.width,
 			height: model.height,
+			headers: {
+				"cache-control": `public, max-age=0, s-maxage=${secondsUntilMidnight}`,
+			},
 		},
 	);
 }
