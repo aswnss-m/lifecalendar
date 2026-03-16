@@ -55,8 +55,14 @@ export function CustomWallpaperBanner() {
                 </DialogHeader>
                 {
                     file ? (
-                        <div>
-                            <Image src={URL.createObjectURL(file)} alt="Custom Wallpaper" width={100} height={100} className="w-full h-full object-cover" />
+                        <div className="flex flex-col items-center gap-2 h-full flex-1">
+                            <Image
+                                src={URL.createObjectURL(file)}
+                                alt="Custom Wallpaper"
+                                width={100}
+                                height={100}
+                                className="w-full h-full object-cover"
+                            />
                             <Button size="sm" variant="default">
                                 Change image
                             </Button>
@@ -66,23 +72,24 @@ export function CustomWallpaperBanner() {
                         </div>
                     ) : (
                         <div
-                        className="flex flex-col items-center gap-2 justify-center h-full cursor-pointer py-5 px-4 hover:bg-muted/30 rounded-lg"
-                        onClick={() => fileInputRef.current?.click()}
-                >
-                    <label htmlFor="custom-wallpaper-upload" className="flex flex-col items-center gap-1 cursor-pointer">
-                        <UploadIcon className="size-5 text-muted-foreground" />
-                        <p className="text-sm text-muted-foreground">Click to select an image</p>
-                        <p className="text-xs text-muted-foreground">PNG, JPG, WEBP</p>
-                        <input
-                            ref={fileInputRef}
-                            id="custom-wallpaper-upload"
-                            type="file"
-                            className="hidden"
-                            accept="image/png, image/jpeg, image/webp"
-                            onChange={handleFileChange}
-                        />
-                    </label>
-                </div>)
+                            className="flex flex-col items-center gap-2 justify-center h-full cursor-pointer py-5 px-4 hover:bg-muted/30 rounded-lg"
+                            onClick={() => fileInputRef.current?.click()}
+                        >
+                            <div className="flex flex-col items-center gap-1 pointer-events-none">
+                                <UploadIcon className="size-5 text-muted-foreground" />
+                                <p className="text-sm text-muted-foreground">Click to select an image</p>
+                                <p className="text-xs text-muted-foreground">PNG, JPG, WEBP</p>
+                            </div>
+                            <input
+                                ref={fileInputRef}
+                                id="custom-wallpaper-upload"
+                                type="file"
+                                className="hidden"
+                                accept="image/png, image/jpeg, image/webp"
+                                onChange={handleFileChange}
+                            />
+                        </div>
+                    )
                         }
                 </DialogContent>
             </Dialog>
