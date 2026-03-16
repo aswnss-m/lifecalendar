@@ -249,9 +249,9 @@ export default function IosInstall({ params, style, onStyleChange, model, onMode
                                     </span>
                                 </p>
                                 <div className="flex flex-col gap-2 min-w-0">
-                                    <div className="min-w-0 bg-muted rounded-lg px-3 py-2 text-xs font-mono truncate text-muted-foreground select-all" suppressHydrationWarning>
+                                    <p className="min-w-0 bg-muted rounded-lg px-3 py-2 text-xs font-mono text-muted-foreground select-all break-all" suppressHydrationWarning>
                                         {url}
-                                    </div>
+                                    </p>
                                     <Button
                                         type="button"
                                         onClick={handleCopy}
