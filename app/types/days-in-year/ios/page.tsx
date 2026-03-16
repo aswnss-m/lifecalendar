@@ -178,7 +178,7 @@ export default function IosTab() {
                         <IosInstall params={params} style={style} onStyleChange={setStyle} model={selectedModel} onModelChange={setSelectedModel} />
                     </TabsContent>
                     <TabsContent value="customize">
-                        <IosCustomization onValuesChange={setFormValues} style={style} initialValues={themeDefaults} />
+                        <IosCustomization onValuesChange={setFormValues} style={style} initialValues={themeDefaults} model={selectedModel} />
                     </TabsContent>
                 </Tabs>
             </div>

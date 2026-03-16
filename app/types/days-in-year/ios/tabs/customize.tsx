@@ -69,9 +69,10 @@ interface Props {
     onValuesChange: (values: FormValues) => void;
     style: "flat" | "monthly";
     initialValues: FormValues;
+    model: keyof typeof Iphone;
 }
 
-export default function IosCustomization({ onValuesChange, style, initialValues }: Props) {
+export default function IosCustomization({ onValuesChange, style, initialValues, model }: Props) {
     const { x_scale, width } = useModelScaler(Iphone[ "17" ], {
         maxHeight: 500,
     });
@@ -128,7 +129,7 @@ export default function IosCustomization({ onValuesChange, style, initialValues 
 
     return (
         <form className="space-y-6 pt-4 max-w-lg w-full flex flex-col">
-            <CustomWallpaperBanner />
+            <CustomWallpaperBanner model={model} />
 
             <FieldSet>
                 <FieldLegend>

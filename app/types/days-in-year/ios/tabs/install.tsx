@@ -120,7 +120,7 @@ export default function IosInstall({ params, style, onStyleChange, model, onMode
 
     return (
         <div className="flex flex-col gap-6 pt-4 max-w-lg w-full">
-            <CustomWallpaperBanner />
+            <CustomWallpaperBanner model={model} />
             {/* Model selector */}
             <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-medium">iPhone Model</label>

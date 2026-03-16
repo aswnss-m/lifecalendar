@@ -3,6 +3,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { v2 as cloudinary } from "cloudinary";
 import { prisma } from "@/lib/prisma";
+import { uploadImage } from "@/services/cloudinary";
 
 export async function uploadCustomWallpaper(formData: FormData) {
     const { userId } = await auth();
@@ -36,3 +37,10 @@ export async function uploadCustomWallpaper(formData: FormData) {
     return { url: result.secure_url };
 }
 
+export async function uploadCroppedImage(dataUrl: string) {
+    const { userId } = await auth();
+    if (!userId) throw new Error("Unauthorized");
+
+    const result = await uploadImage(dataUrl, userId);
+    return result;
+}
