@@ -2,7 +2,9 @@ import { NextRequest } from "next/server";
 import { ImageResponse } from "next/og";
 import { prisma } from "@/lib/prisma";
 import { daysPassed, monthsData, totalDays } from "@/lib/days-in-year";
-import { Iphone } from "@/lib/sizes";
+import { Iphone, android } from "@/lib/sizes";
+
+const allModels: Record<string, { width: number; height: number }> = { ...Iphone, ...android };
 
 interface WallpaperMeta {
     style: string;
@@ -31,8 +33,7 @@ export async function GET(
     if (!wallpaper) return new Response("Not found", { status: 404 });
 
     const meta = wallpaper.metadata as unknown as WallpaperMeta;
-    const modelKey = wallpaper.model as keyof typeof Iphone;
-    const model = Iphone[modelKey] ?? Iphone["17"];
+    const model = allModels[wallpaper.model] ?? Iphone["17"];
 
     const {
         style,
