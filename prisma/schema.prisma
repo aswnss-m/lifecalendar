@@ -12,7 +12,7 @@ datasource db {
   provider = "postgresql"
 }
 
-
+// User
 model User {
   id String @id
   name String
@@ -21,14 +21,31 @@ model User {
   updatedAt DateTime @updatedAt
 
   images Image[]
+  wallpapers Wallpaper[]
 }
 
+// Uploaded Image
 model Image {
   id String @id @default(uuid())
   url String
   userId String
   user User @relation(fields: [userId], references: [id])
 
+  wallpapers Wallpaper[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Generated Wallpaper
+model Wallpaper {
+  id String @id @default(cuid())
+  imageId String
+  image Image @relation(fields: [imageId], references: [id])
+  model String
+  metadata Json @default("{}")
+
+  userId String
+  user User @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
