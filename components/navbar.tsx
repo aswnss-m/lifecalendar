@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { IconMoon, IconSun } from "@tabler/icons-react";
+import { IconMoon, IconPhoto, IconSun } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { SignInButton, UserButton, Show } from "@clerk/nextjs";
@@ -26,13 +26,15 @@ export function Navbar() {
                         </SignInButton>
                     </Show>
                     <Show when="signed-in">
-                        <Link
-                            href="/profile"
-                            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                            My Wallpapers
-                        </Link>
-                        <UserButton />
+                        <UserButton>
+                            <UserButton.MenuItems>
+                                <UserButton.Link
+                                label="My Wallpapers"
+                                labelIcon={<IconPhoto className={'size-4'} />}
+                                href="/profile"
+                                />
+                            </UserButton.MenuItems>
+                        </UserButton>
                     </Show>
                     <Button
                         variant="ghost"
