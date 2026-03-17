@@ -1,9 +1,10 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { IconMoon, IconSun } from "@tabler/icons-react";
+import { IconMoon, IconPhoto, IconSun } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { SignInButton, UserButton, Show } from "@clerk/nextjs";
 
 export function Navbar() {
     const { theme, setTheme } = useTheme();
@@ -16,7 +17,25 @@ export function Navbar() {
                         Custom Life Calendar
                     </Link>
                 </div>
-                <div className="ml-auto">
+                <div className="ml-auto flex items-center gap-2">
+                    <Show when="signed-out">
+                        <SignInButton>
+                            <Button variant="ghost" size="sm">
+                                Sign in
+                            </Button>
+                        </SignInButton>
+                    </Show>
+                    <Show when="signed-in">
+                        <UserButton>
+                            <UserButton.MenuItems>
+                                <UserButton.Link
+                                label="My Wallpapers"
+                                labelIcon={<IconPhoto className={'size-4'} />}
+                                href="/profile"
+                                />
+                            </UserButton.MenuItems>
+                        </UserButton>
+                    </Show>
                     <Button
                         variant="ghost"
                         size="icon"

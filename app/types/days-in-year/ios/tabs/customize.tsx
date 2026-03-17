@@ -18,7 +18,6 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { useModelScaler } from "@/hooks/use-model-scaler";
 import { Iphone } from "@/lib/sizes";
-import { Card, CardContent } from "@/components/ui/card";
 
 const formSchema = z.object({
     boxWidth: z.number().min(10).max(50),
@@ -68,9 +67,11 @@ interface Props {
     onValuesChange: (values: FormValues) => void;
     style: "flat" | "monthly";
     initialValues: FormValues;
+    model: keyof typeof Iphone;
+    showBgColor?: boolean;
 }
 
-export default function IosCustomization({ onValuesChange, style, initialValues }: Props) {
+export default function IosCustomization({ onValuesChange, style, initialValues, model, showBgColor = true }: Props) {
     const { x_scale, width } = useModelScaler(Iphone[ "17" ], {
         maxHeight: 500,
     });
@@ -286,30 +287,32 @@ export default function IosCustomization({ onValuesChange, style, initialValues 
                     />
 
                     {/* Background Color */}
-                    <Controller
-                        name="bgColor"
-                        control={form.control}
-                        render={({ field, fieldState }) => (
-                            <Field
-                                orientation="horizontal"
-                                data-invalid={fieldState.invalid}
-                            >
-                                <FieldLabel htmlFor={field.name}>
-                                    Background Color
-                                </FieldLabel>
-                                <input
-                                    {...field}
-                                    id={field.name}
-                                    type="color"
-                                    className="h-8 w-14 cursor-pointer rounded border p-0.5"
-                                    aria-invalid={fieldState.invalid}
-                                />
-                                {fieldState.invalid && (
-                                    <FieldError errors={[ fieldState.error ]} />
-                                )}
-                            </Field>
-                        )}
-                    />
+                    {showBgColor && (
+                        <Controller
+                            name="bgColor"
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                                <Field
+                                    orientation="horizontal"
+                                    data-invalid={fieldState.invalid}
+                                >
+                                    <FieldLabel htmlFor={field.name}>
+                                        Background Color
+                                    </FieldLabel>
+                                    <input
+                                        {...field}
+                                        id={field.name}
+                                        type="color"
+                                        className="h-8 w-14 cursor-pointer rounded border p-0.5"
+                                        aria-invalid={fieldState.invalid}
+                                    />
+                                    {fieldState.invalid && (
+                                        <FieldError errors={[ fieldState.error ]} />
+                                    )}
+                                </Field>
+                            )}
+                        />
+                    )}
 
                     {/* Month Label Color — only for monthly style */}
                     {style === "monthly" && (

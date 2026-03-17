@@ -119,53 +119,56 @@ export default function IosInstall({ params, style, onStyleChange, model, onMode
 
     return (
         <div className="flex flex-col gap-6 pt-4 max-w-lg w-full">
-            {/* Model selector */}
-            <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium">iPhone Model</label>
-                <ModelCombobox model={model} onModelChange={onModelChange} />
+            {/* Model + Style selectors side-by-side */}
+            <div className="flex gap-3">
+                <div className="flex flex-col gap-1.5 flex-1">
+                    <label className="text-sm font-medium">iPhone Model</label>
+                    <ModelCombobox model={model} onModelChange={onModelChange} />
+                </div>
+                <div className="flex flex-col gap-1.5 flex-1">
+                    <label htmlFor="style-select" className="text-sm font-medium">Style</label>
+                    <select
+                        id="style-select"
+                        value={style}
+                        onChange={(e) => onStyleChange(e.target.value as "flat" | "monthly")}
+                        className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                    >
+                        <option value="flat">Days (flat)</option>
+                        <option value="monthly">Monthly Groups</option>
+                    </select>
+                </div>
             </div>
 
-            {/* Style selector */}
-            <div className="flex flex-col gap-1.5">
-                <label htmlFor="style-select" className="text-sm font-medium">
-                    Style
-                </label>
-                <select
-                    id="style-select"
-                    value={style}
-                    onChange={(e) => onStyleChange(e.target.value as "flat" | "monthly")}
-                    className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                >
-                    <option value="flat">Days (all days of the year)</option>
-                    <option value="monthly">Monthly Groups</option>
-                </select>
+            {/* iOS Shortcut URL */}
+            <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">iOS Shortcut URL</p>
+                <p className="text-xs font-mono bg-muted rounded-lg px-3 py-2 text-muted-foreground break-all select-all" suppressHydrationWarning>
+                    {url}
+                </p>
+                <Button type="button" onClick={handleCopy} className="w-full" aria-label="Copy URL">
+                    {copied ? (
+                        <><CheckIcon className="size-4" /> Copied</>
+                    ) : (
+                        <><CopyIcon className="size-4" /> Copy URL</>
+                    )}
+                </Button>
             </div>
 
             <div className="space-y-1">
-                <h2 className="text-2xl font-bold tracking-tight">
-                    Installation Steps
-                </h2>
+                <h2 className="text-2xl font-bold tracking-tight">Installation Steps</h2>
                 <p className="text-sm text-muted-foreground">
-                    First, define your wallpaper settings. Then create an
-                    automation to run daily. Finally, add the shortcut actions
-                    to update your lock screen.
+                    Customize your wallpaper, then set up a daily automation to keep it fresh.
                 </p>
             </div>
 
             {/* Step 1 */}
-            <div className="flex gap-3 max-w-lg">
+            <div className="flex gap-3">
                 <StepBadge n={1} />
                 <Card className="flex-1">
                     <CardHeader>
-                        <CardTitle className="text-base">
-                            Define your Wallpaper
-                        </CardTitle>
+                        <CardTitle className="text-base">Customize your wallpaper</CardTitle>
                         <CardDescription>
-                            Configure your wallpaper using the{" "}
-                            <span className="text-foreground font-medium">
-                                Customize
-                            </span>{" "}
-                            tab above. Settings are saved automatically.
+                            Adjust colors and grid using the <span className="text-foreground font-medium">Customize</span> tab, then copy the URL above.
                         </CardDescription>
                     </CardHeader>
                 </Card>
@@ -176,43 +179,15 @@ export default function IosInstall({ params, style, onStyleChange, model, onMode
                 <StepBadge n={2} />
                 <Card className="flex-1">
                     <CardHeader>
-                        <CardTitle className="text-base">
-                            Create Automation
-                        </CardTitle>
+                        <CardTitle className="text-base">Create Automation</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <p className="text-sm text-muted-foreground leading-relaxed">
                             Open{" "}
-                            <a
-                                href="shortcuts://"
-                                className="text-foreground font-medium underline underline-offset-2"
-                            >
+                            <a href="shortcuts://" className="text-foreground font-medium underline underline-offset-2">
                                 Shortcuts
-                            </a>{" "}
-                            app → Go to{" "}
-                            <span className="text-foreground font-medium">
-                                Automation
-                            </span>{" "}
-                            tab → New Automation →{" "}
-                            <span className="text-foreground font-medium">
-                                Time of Day
-                            </span>{" "}
-                            →{" "}
-                            <span className="text-foreground font-medium">
-                                6:00 AM
-                            </span>{" "}
-                            → Repeat{" "}
-                            <span className="text-foreground font-medium">
-                                "Daily"
-                            </span>{" "}
-                            → Select{" "}
-                            <span className="text-foreground font-medium">
-                                "Run Immediately"
-                            </span>{" "}
-                            →{" "}
-                            <span className="text-foreground font-medium">
-                                "Create New Shortcut"
-                            </span>
+                            </a>
+                            {" "}→ <span className="text-foreground font-medium">Automation</span> → New → <span className="text-foreground font-medium">Time of Day</span> → 6:00 AM → Daily → Run Immediately → Create New Shortcut
                         </p>
                     </CardContent>
                 </Card>
@@ -221,82 +196,25 @@ export default function IosInstall({ params, style, onStyleChange, model, onMode
             {/* Step 3 */}
             <div className="flex gap-3">
                 <StepBadge n={3} />
-                <Card className="flex-1 w-full">
+                <Card className="flex-1">
                     <CardHeader>
-                        <CardTitle className="text-base">
-                            Create Shortcut
-                        </CardTitle>
-                        <CardDescription className="text-xs uppercase tracking-wider font-semibold">
-                            Add these actions:
-                        </CardDescription>
+                        <CardTitle className="text-base">Create Shortcut</CardTitle>
+                        <CardDescription className="text-xs uppercase tracking-wider font-semibold">Add these actions:</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        {/* 3.1 */}
-                        <div className="flex gap-2 min-w-0">
-                            <span className="text-muted-foreground text-sm shrink-0">
-                                3.1
-                            </span>
-                            <div className="text-sm min-w-0 flex-1 space-y-2">
-                                <p>
-                                    <span className="font-medium">
-                                        "Get Contents of URL"
-                                    </span>
-                                    <span className="text-muted-foreground">
-                                        {" "}
-                                        → paste the following URL:
-                                    </span>
-                                </p>
-                                <div className="flex flex-col gap-2 min-w-0">
-                                    <div className="min-w-0 bg-muted rounded-lg px-3 py-2 text-xs font-mono truncate text-muted-foreground select-all" suppressHydrationWarning>
-                                        {url}
-                                    </div>
-                                    <Button
-                                        type="button"
-                                        onClick={handleCopy}
-                                        className="w-full"
-                                        aria-label="Copy URL"
-                                    >
-                                        {copied ? (
-                                            <><CheckIcon className="size-4" /> Copied</>
-                                        ) : (
-                                            <><CopyIcon className="size-4" /> Copy URL</>
-                                        )}
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* 3.2 */}
                         <div className="flex gap-2">
-                            <span className="text-muted-foreground text-sm shrink-0">
-                                3.2
-                            </span>
-                            <p className="text-sm">
-                                <span className="font-medium">
-                                    "Set Wallpaper Photo"
-                                </span>
-                                <span className="text-muted-foreground">
-                                    {" "}
-                                    → choose "Lock Screen"
-                                </span>
-                            </p>
+                            <span className="text-muted-foreground text-sm shrink-0">3.1</span>
+                            <p className="text-sm"><span className="font-medium">"Get Contents of URL"</span> → paste the URL above</p>
                         </div>
-
-                        {/* Warning */}
+                        <div className="flex gap-2">
+                            <span className="text-muted-foreground text-sm shrink-0">3.2</span>
+                            <p className="text-sm"><span className="font-medium">"Set Wallpaper Photo"</span> → Lock Screen</p>
+                        </div>
                         <Card className="bg-amber-500/10 border-amber-500/30">
                             <CardContent className="py-4">
-                                <p className="text-sm text-amber-700 dark:text-amber-400 font-medium">
-                                    Important
-                                </p>
+                                <p className="text-sm text-amber-700 dark:text-amber-400 font-medium">Important</p>
                                 <p className="text-sm text-amber-700/80 dark:text-amber-400/80 mt-1">
-                                    In "Set Wallpaper Photo" tap the arrow (→)
-                                    to show options → disable both{" "}
-                                    <strong>"Crop to Subject"</strong> and{" "}
-                                    <strong>"Show Preview"</strong>
-                                </p>
-                                <p className="text-xs text-amber-700/60 dark:text-amber-400/60 mt-1">
-                                    This prevents iOS from cropping and asking
-                                    for confirmation each time.
+                                    In "Set Wallpaper Photo" tap (→) → disable <strong>"Crop to Subject"</strong> and <strong>"Show Preview"</strong>.
                                 </p>
                             </CardContent>
                         </Card>
