@@ -6,11 +6,23 @@ import { uploadImage } from "@/services/cloudinary";
 import type { Prisma } from "@/generated/prisma/client";
 
 
+async function ensureUser(userId: string) {
+    const clerkUser = await currentUser();
+    await prisma.user.upsert({
+        where: { id: userId },
+        update: {},
+        create: {
+            id: userId,
+            name: clerkUser?.fullName ?? clerkUser?.firstName ?? "",
+        },
+    });
+}
+
 export async function uploadCroppedImage(dataUrl: string) {
-    const { userId,isAuthenticated } = await auth();
-    console.log(" User data:", { userId, isAuthenticated });
+    const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized");
 
+    await ensureUser(userId);
 
     const result = await uploadImage(dataUrl, userId);
     if (!result.success || !result.data) throw new Error(result.message);
