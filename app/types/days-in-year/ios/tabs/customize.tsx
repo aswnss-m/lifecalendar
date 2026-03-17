@@ -18,8 +18,6 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { useModelScaler } from "@/hooks/use-model-scaler";
 import { Iphone } from "@/lib/sizes";
-import { Card, CardContent } from "@/components/ui/card";
-import { CustomWallpaperBanner } from "@/components/custom-wallpaper-banner";
 
 const formSchema = z.object({
     boxWidth: z.number().min(10).max(50),
@@ -129,7 +127,6 @@ export default function IosCustomization({ onValuesChange, style, initialValues,
 
     return (
         <form className="space-y-6 pt-4 max-w-lg w-full flex flex-col">
-            <CustomWallpaperBanner model={model} />
 
             <FieldSet>
                 <FieldLegend>

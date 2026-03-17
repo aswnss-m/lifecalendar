@@ -4,7 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { useAuth, SignInButton } from "@clerk/nextjs";
 import { ImageIcon, UploadIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import ReactCrop, {
     centerCrop,
@@ -14,10 +14,13 @@ import ReactCrop, {
 } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { Iphone } from "@/lib/sizes";
-import { uploadCroppedImage } from "@/app/types/days-in-year/ios/custom-wallpaper/actions";
+import { uploadCroppedImage, createWallpaper } from "@/app/types/days-in-year/ios/custom-wallpaper/actions";
+import type { FormValues } from "@/app/types/days-in-year/ios/tabs/customize";
 
 interface Props {
     model: keyof typeof Iphone;
+    formValues: FormValues;
+    style: "flat" | "monthly";
 }
 
 function centerAspectCrop(mediaWidth: number, mediaHeight: number, aspect: number): Crop {
@@ -50,9 +53,10 @@ async function extractCroppedBlob(image: HTMLImageElement, crop: PixelCrop): Pro
     return new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.95));
 }
 
-export function CustomWallpaperBanner({ model }: Props) {
-    const { isSignedIn } = useAuth();
+export function CustomWallpaperBanner({ model, formValues, style }: Props) {
+    const { isSignedIn, userId } = useAuth();
     const pathname = usePathname();
+    const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const imgRef = useRef<HTMLImageElement>(null);
     const [imgSrc, setImgSrc] = useState("");
@@ -92,6 +96,7 @@ export function CustomWallpaperBanner({ model }: Props) {
     }
 
     function handleSet() {
+        console.log("User Id ", userId);
         if (!completedCrop || !imgRef.current) return;
         startTransition(async () => {
             const blob = await extractCroppedBlob(imgRef.current!, completedCrop);
@@ -101,10 +106,12 @@ export function CustomWallpaperBanner({ model }: Props) {
                 reader.onloadend = () => resolve(reader.result as string);
                 reader.readAsDataURL(blob);
             });
-            const result = await uploadCroppedImage(dataUrl);
-            console.log("Image Url:", result.url);
-            setOpen(false);
-            handleChange();
+            const image = await uploadCroppedImage(dataUrl);
+            const wallpaper = await createWallpaper(image.id, model, {
+                ...formValues,
+                style,
+            });
+            router.push(`/wallpaper/${wallpaper.id}`);
         });
     }
 

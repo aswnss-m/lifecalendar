@@ -15,6 +15,7 @@ import IosCustomization, {
     type FormValues,
 } from "./tabs/customize";
 import IosInstall from "./tabs/install";
+import { CustomWallpaperBanner } from "@/components/custom-wallpaper-banner";
 
 export default function IosTab() {
     const { resolvedTheme } = useTheme();
@@ -62,6 +63,7 @@ export default function IosTab() {
     return (
         <div className="flex min-h-screen items-center justify-center p-4">
             <div className="flex flex-col gap-4 items-center justify-center w-full max-w-lg">
+                <CustomWallpaperBanner model={selectedModel} formValues={formValues} style={style} />
                 {/* THE PREVIEW */}
                 <Card style={{ width, height, backgroundColor: formValues.bgColor }}>
                     <CardContent className="h-full flex flex-col pb-6 content-end items-center">

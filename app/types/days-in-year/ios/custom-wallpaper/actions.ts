@@ -1,25 +1,34 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { uploadImage } from "@/services/cloudinary";
+import type { Prisma } from "@/generated/prisma/client";
 
-/**
- * Uploads a cropped image to Cloudinary and saves it to the database
- * @param dataUrl - The data URL of the cropped image
- * @returns An object containing the result of the upload
- */
+
 export async function uploadCroppedImage(dataUrl: string) {
-    const { userId } = await auth();
+    const { userId,isAuthenticated } = await auth();
+    console.log(" User data:", { userId, isAuthenticated });
     if (!userId) throw new Error("Unauthorized");
+
 
     const result = await uploadImage(dataUrl, userId);
     if (!result.success || !result.data) throw new Error(result.message);
 
-    // Save the image to the database
-    const image = await prisma.image.create({
-        data: { url: result.data.url, userId},
+    return prisma.image.create({
+        data: { url: result.data.url, userId },
     });
+}
 
-    return image;
+export async function createWallpaper(
+    imageId: string,
+    model: string,
+    metadata: Prisma.InputJsonValue,
+) {
+    const { userId } = await auth();
+    if (!userId) throw new Error("Unauthorized");
+
+    return prisma.wallpaper.create({
+        data: { imageId, model, metadata, userId },
+    });
 }
