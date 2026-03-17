@@ -32,6 +32,20 @@ export async function uploadCroppedImage(dataUrl: string) {
     });
 }
 
+export async function updateWallpaper(
+    id: string,
+    model: string,
+    metadata: Prisma.InputJsonValue,
+) {
+    const { userId } = await auth();
+    if (!userId) throw new Error("Unauthorized");
+
+    return prisma.wallpaper.update({
+        where: { id, userId },
+        data: { model, metadata },
+    });
+}
+
 export async function createWallpaper(
     imageId: string,
     model: string,

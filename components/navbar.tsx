@@ -26,6 +26,12 @@ export function Navbar() {
                         </SignInButton>
                     </Show>
                     <Show when="signed-in">
+                        <Link
+                            href="/profile"
+                            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                            My Wallpapers
+                        </Link>
                         <UserButton />
                     </Show>
                     <Button
