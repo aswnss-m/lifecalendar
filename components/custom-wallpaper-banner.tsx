@@ -102,7 +102,7 @@ export function CustomWallpaperBanner({ model }: Props) {
                 reader.readAsDataURL(blob);
             });
             const result = await uploadCroppedImage(dataUrl);
-            console.log("Upload result:", result);
+            console.log("Image Url:", result.url);
             setOpen(false);
             handleChange();
         });
