@@ -18,12 +18,19 @@ async function ensureUser(userId: string) {
     });
 }
 
-export async function uploadCroppedImage(dataUrl: string) {
+export async function uploadCroppedImage(formData: FormData) {
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized");
 
+    const file = formData.get("image");
+    if (!(file instanceof File) || file.size === 0) {
+        throw new Error("No image provided");
+    }
+
     await ensureUser(userId);
 
+    const bytes = Buffer.from(await file.arrayBuffer());
+    const dataUrl = `data:${file.type || "image/jpeg"};base64,${bytes.toString("base64")}`;
     const result = await uploadImage(dataUrl, userId);
     if (!result.success || !result.data) throw new Error(result.message);
 

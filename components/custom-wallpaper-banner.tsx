@@ -31,14 +31,19 @@ function centerAspectCrop(mediaWidth: number, mediaHeight: number, aspect: numbe
     );
 }
 
-async function extractCroppedBlob(image: HTMLImageElement, crop: PixelCrop): Promise<Blob | null> {
+async function extractCroppedBlob(
+    image: HTMLImageElement,
+    crop: PixelCrop,
+    outputWidth: number,
+    outputHeight: number,
+): Promise<Blob | null> {
     const canvas = document.createElement("canvas");
-    const scaleX = image.naturalWidth / image.width;
-    const scaleY = image.naturalHeight / image.height;
-    canvas.width = Math.floor(crop.width * scaleX);
-    canvas.height = Math.floor(crop.height * scaleY);
+    canvas.width = outputWidth;
+    canvas.height = outputHeight;
     const ctx = canvas.getContext("2d");
     if (!ctx) return null;
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
     ctx.imageSmoothingQuality = "high";
     ctx.drawImage(
         image,
@@ -47,10 +52,10 @@ async function extractCroppedBlob(image: HTMLImageElement, crop: PixelCrop): Pro
         crop.width * scaleX,
         crop.height * scaleY,
         0, 0,
-        canvas.width,
-        canvas.height
+        outputWidth,
+        outputHeight,
     );
-    return new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.95));
+    return new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.85));
 }
 
 export function CustomWallpaperBanner({ model, formValues, style }: Props) {
@@ -99,14 +104,11 @@ export function CustomWallpaperBanner({ model, formValues, style }: Props) {
         console.log("User Id ", userId);
         if (!completedCrop || !imgRef.current) return;
         startTransition(async () => {
-            const blob = await extractCroppedBlob(imgRef.current!, completedCrop);
+            const blob = await extractCroppedBlob(imgRef.current!, completedCrop, width, height);
             if (!blob) return;
-            const dataUrl = await new Promise<string>((resolve) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result as string);
-                reader.readAsDataURL(blob);
-            });
-            const image = await uploadCroppedImage(dataUrl);
+            const formData = new FormData();
+            formData.append("image", blob, "wallpaper.jpg");
+            const image = await uploadCroppedImage(formData);
             const wallpaper = await createWallpaper(image.id, model, {
                 ...formValues,
                 style,
