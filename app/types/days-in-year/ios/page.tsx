@@ -6,7 +6,7 @@ import { useTheme } from "next-themes";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useModelScaler } from "@/hooks/use-model-scaler";
-import { daysPassed, monthsData, totalDays } from "@/lib/days-in-year";
+import { useYearProgress } from "@/hooks/use-year-progress";
 import { Iphone } from "@/lib/sizes";
 
 import IosCustomization, {
@@ -19,11 +19,7 @@ import { CustomWallpaperBanner } from "@/components/custom-wallpaper-banner";
 
 export default function IosTab() {
     const { resolvedTheme } = useTheme();
-    const passed = daysPassed();
-    const total = totalDays();
-    const daysLeft = total - passed;
-    const percentage = Math.round((passed / total) * 100);
-    const months = monthsData();
+    const { passed, total, daysLeft, percentage, months, ready } = useYearProgress();
     const themeDefaults = resolvedTheme === "light" ? lightDefaults : darkDefaults;
     const [ formValues, setFormValues ] = useState<FormValues>(themeDefaults);
     const [ style, setStyle ] = useState<"flat" | "monthly">("flat");
@@ -47,6 +43,7 @@ export default function IosTab() {
         p.set("radius", String(formValues.radius));
         p.set("monthLabelColor", formValues.monthLabelColor.replace("#", ""));
         p.set("model", selectedModel);
+        p.set("timeZone", Intl.DateTimeFormat().resolvedOptions().timeZone);
         return p;
     }, [ formValues, style, selectedModel ]);
 
@@ -63,7 +60,7 @@ export default function IosTab() {
     return (
         <div className="flex min-h-screen items-center justify-center p-4">
             <div className="flex flex-col gap-4 items-center justify-center w-full max-w-lg">
-                <CustomWallpaperBanner model={selectedModel} formValues={formValues} style={style} />
+                <CustomWallpaperBanner model={selectedModel} size={Iphone[selectedModel]} formValues={formValues} style={style} />
                 {/* THE PREVIEW */}
                 <Card style={{ width, height, backgroundColor: formValues.bgColor }}>
                     <CardContent className="h-full flex flex-col pb-6 content-end items-center">
@@ -151,7 +148,7 @@ export default function IosTab() {
                             </div>
                             </>
                         )}
-                        {formValues.showPercentage && (
+                        {formValues.showPercentage && ready && (
                             <div className={'text-center w-full flex gap-1 items-center justify-center mt-2'} style={{
                                 fontSize: x_scale(50)
                             }}>
@@ -179,8 +176,9 @@ export default function IosTab() {
                     <TabsContent value="install">
                         <IosInstall params={params} style={style} onStyleChange={setStyle} model={selectedModel} onModelChange={setSelectedModel} />
                     </TabsContent>
-                    <TabsContent value="customize">
-                        <IosCustomization onValuesChange={setFormValues} style={style} initialValues={themeDefaults} model={selectedModel} />
+                    {/* forceMount keeps the form mounted so switching tabs doesn't reset unsaved edits */}
+                    <TabsContent value="customize" forceMount className="data-[state=inactive]:hidden">
+                        <IosCustomization onValuesChange={setFormValues} style={style} initialValues={themeDefaults} size={Iphone[selectedModel]} />
                     </TabsContent>
                 </Tabs>
             </div>

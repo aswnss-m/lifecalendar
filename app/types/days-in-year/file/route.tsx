@@ -2,24 +2,27 @@ export const runtime = 'edge';
 import { NextRequest } from "next/server";
 import { ImageResponse } from "next/og";
 
-import { daysPassed, monthsData, totalDays } from "@/lib/days-in-year";
+import { yearProgress } from "@/lib/days-in-year";
+import { parseWallpaperMeta } from "@/lib/wallpaper-meta";
 import { Iphone } from "@/lib/sizes";
 
 export async function GET(request: NextRequest) {
 	const { searchParams } = request.nextUrl;
 
-	const style = searchParams.get("style") ?? "flat";
-	const boxWidth = Number(searchParams.get("boxWidth") ?? "25");
-	const columns = Number(searchParams.get("columns") ?? "10");
-	const passedColor = "#" + (searchParams.get("passedColor") ?? "ef4444");
-	const leftColor = "#" + (searchParams.get("leftColor") ?? "fecaca");
-	const bgColor = "#" + (searchParams.get("bgColor") ?? "6b7280");
-	const radius = Number(searchParams.get("radius") ?? "0");
-	const showPercentage = searchParams.get("showPercentage") !== "false";
-	const daysLeftColor = "#" + (searchParams.get("daysLeftColor") ?? "ffffff");
-	const percentColor = "#" + (searchParams.get("percentColor") ?? "ffffff");
-	const monthLabelColor =
-		"#" + (searchParams.get("monthLabelColor") ?? "ffffff");
+	const {
+		style,
+		boxWidth,
+		columns,
+		passedColor,
+		leftColor,
+		bgColor,
+		radius,
+		showPercentage,
+		daysLeftColor,
+		percentColor,
+		monthLabelColor,
+		timeZone,
+	} = parseWallpaperMeta(Object.fromEntries(searchParams));
 
 	const modelKey = (searchParams.get("model") ?? "17") as keyof typeof Iphone;
 	const model = Iphone[modelKey] ?? Iphone["17"];
@@ -31,11 +34,7 @@ export async function GET(request: NextRequest) {
 	const padding = s(40); // bottom breathing room, matching old SVG route
 	const borderRadius = `${radius}%`;
 
-	const passed = daysPassed();
-	const total = totalDays();
-	const daysLeft = total - passed;
-	const percentage = Math.round((passed / total) * 100);
-	const months = monthsData();
+	const { passed, total, daysLeft, percentage, months, secondsUntilMidnight } = yearProgress(timeZone);
 
 	// ── Grid ─────────────────────────────────────────────────────────────────────
 
@@ -194,11 +193,6 @@ export async function GET(request: NextRequest) {
 	) : null;
 
 	// ── Response ──────────────────────────────────────────────────────────────────
-
-	const now = new Date();
-	const midnight = new Date(now);
-	midnight.setUTCHours(24, 0, 0, 0);
-	const secondsUntilMidnight = Math.floor((midnight.getTime() - now.getTime()) / 1000);
 
 	return new ImageResponse(
 		(

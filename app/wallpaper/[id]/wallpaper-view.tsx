@@ -8,17 +8,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Iphone, android } from "@/lib/sizes";
 import { useModelScaler } from "@/hooks/use-model-scaler";
-import { daysPassed, monthsData, totalDays } from "@/lib/days-in-year";
+import { useYearProgress } from "@/hooks/use-year-progress";
+import type { WallpaperMeta } from "@/lib/wallpaper-meta";
 import IosCustomization, { type FormValues } from "@/app/types/days-in-year/ios/tabs/customize";
 import { updateWallpaper } from "@/app/types/days-in-year/ios/custom-wallpaper/actions";
-
-type WallpaperMeta = FormValues & { style: "flat" | "monthly" };
 
 interface Props {
     wallpaper: {
         id: string;
         model: string;
-        metadata: unknown;
+        metadata: WallpaperMeta;
+        updatedAt: number;
         image: { url: string };
     };
 }
@@ -42,8 +42,9 @@ export default function WallpaperView({ wallpaper }: Props) {
     // Without this, the spread creates a new object every render, causing
     // IosCustomization's useEffect(form.reset) to loop with setFormValues.
     const [initialStyle, initialFormValues] = useMemo(() => {
-        const { style, ...rest } = wallpaper.metadata as WallpaperMeta;
-        return [style, rest] as const;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { style, timeZone, ...rest } = wallpaper.metadata;
+        return [style, rest as FormValues] as const;
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -57,14 +58,12 @@ export default function WallpaperView({ wallpaper }: Props) {
     const [isSaving, startSaveTransition] = useTransition();
     const [saved, setSaved] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [error, setError] = useState("");
+    const [version, setVersion] = useState(wallpaper.updatedAt);
 
     const { x_scale, width, height } = useModelScaler(getModelDims(model), { maxHeight: 500 });
 
-    const passed = daysPassed();
-    const total = totalDays();
-    const daysLeft = total - passed;
-    const percentage = Math.round((passed / total) * 100);
-    const months = monthsData();
+    const { passed, total, daysLeft, percentage, months, ready } = useYearProgress();
 
     const cellSize = x_scale(formValues.boxWidth);
     const borderRadius = `${formValues.radius}%`;
@@ -77,21 +76,36 @@ export default function WallpaperView({ wallpaper }: Props) {
 
     const fileUrl = useMemo(() => {
         const origin = typeof window !== "undefined" ? window.location.origin : "";
-        return `${origin}/wallpaper/${wallpaper.id}/file`;
-    }, [wallpaper.id]);
+        // The version changes on every save, so the CDN can't serve an image cached before the edit.
+        return `${origin}/wallpaper/${wallpaper.id}/file?v=${version}`;
+    }, [wallpaper.id, version]);
 
     function handleSave() {
+        setError("");
         startSaveTransition(async () => {
-            await updateWallpaper(wallpaper.id, model, { ...formValues, style });
-            setSaved(true);
-            setTimeout(() => setSaved(false), 2000);
+            try {
+                const { updatedAt } = await updateWallpaper(wallpaper.id, model, {
+                    ...formValues,
+                    style,
+                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                });
+                setVersion(updatedAt);
+                setSaved(true);
+                setTimeout(() => setSaved(false), 2000);
+            } catch {
+                setError("Save failed. Check that you are signed in as the owner and try again.");
+            }
         });
     }
 
     async function handleCopy() {
-        await navigator.clipboard.writeText(fileUrl);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+        try {
+            await navigator.clipboard.writeText(fileUrl);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch {
+            setError("Couldn't copy. Select the URL above and copy it manually.");
+        }
     }
 
     return (
@@ -196,7 +210,7 @@ export default function WallpaperView({ wallpaper }: Props) {
                                 </div>
                             </>
                         )}
-                        {formValues.showPercentage && (
+                        {formValues.showPercentage && ready && (
                             <div
                                 className="text-center w-full flex gap-1 items-center justify-center mt-2"
                                 style={{ fontSize: x_scale(50) }}
@@ -225,10 +239,11 @@ export default function WallpaperView({ wallpaper }: Props) {
                             {/* Model + Style selectors */}
                             <div className="flex gap-3">
                                 <div className="flex flex-col gap-1.5 flex-1">
-                                    <label className="text-sm font-medium">
+                                    <label htmlFor="model-select" className="text-sm font-medium">
                                         {isAndroid ? "Phone Model" : "iPhone Model"}
                                     </label>
                                     <select
+                                        id="model-select"
                                         value={model}
                                         onChange={(e) => setModel(e.target.value)}
                                         className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
@@ -244,8 +259,9 @@ export default function WallpaperView({ wallpaper }: Props) {
                                     </select>
                                 </div>
                                 <div className="flex flex-col gap-1.5 flex-1">
-                                    <label className="text-sm font-medium">Style</label>
+                                    <label htmlFor="style-select" className="text-sm font-medium">Style</label>
                                     <select
+                                        id="style-select"
                                         value={style}
                                         onChange={(e) => setStyle(e.target.value as "flat" | "monthly")}
                                         className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
@@ -284,6 +300,12 @@ export default function WallpaperView({ wallpaper }: Props) {
                                         }
                                     </Button>
                                 </div>
+                                {saved && (
+                                    <p className="text-xs text-muted-foreground">
+                                        Saving changes the URL. Copy it again and update your automation.
+                                    </p>
+                                )}
+                                {error && <p role="alert" className="text-xs text-destructive">{error}</p>}
                             </div>
 
                             {/* Installation Steps */}
@@ -494,12 +516,13 @@ export default function WallpaperView({ wallpaper }: Props) {
                     </TabsContent>
 
                     {/* Customize tab */}
-                    <TabsContent value="customize">
+                    {/* forceMount keeps the form mounted so switching tabs doesn't reset unsaved edits */}
+                    <TabsContent value="customize" forceMount className="data-[state=inactive]:hidden">
                         <IosCustomization
                             onValuesChange={setFormValues}
                             style={style}
                             initialValues={initialFormValues}
-                            model={isAndroid ? ("17" as keyof typeof Iphone) : (model as keyof typeof Iphone)}
+                            size={getModelDims(model)}
                             showBgColor={false}
                         />
                     </TabsContent>

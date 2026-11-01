@@ -1,23 +1,11 @@
 import { NextRequest } from "next/server";
 import { ImageResponse } from "next/og";
 import { prisma } from "@/lib/prisma";
-import { daysPassed, monthsData, totalDays } from "@/lib/days-in-year";
+import { yearProgress } from "@/lib/days-in-year";
+import { parseWallpaperMeta } from "@/lib/wallpaper-meta";
 import { Iphone, android } from "@/lib/sizes";
 
 const allModels: Record<string, { width: number; height: number }> = { ...Iphone, ...android };
-
-interface WallpaperMeta {
-    style: string;
-    boxWidth: number;
-    columns: number;
-    passedColor: string;
-    leftColor: string;
-    showPercentage: boolean;
-    daysLeftColor: string;
-    percentColor: string;
-    radius: number;
-    monthLabelColor: string;
-}
 
 export async function GET(
     _req: NextRequest,
@@ -32,7 +20,7 @@ export async function GET(
 
     if (!wallpaper) return new Response("Not found", { status: 404 });
 
-    const meta = wallpaper.metadata as unknown as WallpaperMeta;
+    const meta = parseWallpaperMeta(wallpaper.metadata);
     const model = allModels[wallpaper.model] ?? Iphone["17"];
 
     const {
@@ -46,17 +34,14 @@ export async function GET(
         percentColor,
         radius,
         monthLabelColor,
+        timeZone,
     } = meta;
 
     const borderRadius = `${radius}%`;
     const previewScale = 500 / model.height;
     const s = (previewPx: number) => Math.round(previewPx / previewScale);
 
-    const passed = daysPassed();
-    const total = totalDays();
-    const daysLeft = total - passed;
-    const percentage = Math.round((passed / total) * 100);
-    const months = monthsData();
+    const { passed, total, daysLeft, percentage, months, secondsUntilMidnight } = yearProgress(timeZone);
 
     const padding = s(40);
 
@@ -161,11 +146,6 @@ export async function GET(
             <span style={{ color: percentColor }}>{percentage}%</span>
         </div>
     ) : null;
-
-    const now = new Date();
-    const midnight = new Date(now);
-    midnight.setUTCHours(24, 0, 0, 0);
-    const secondsUntilMidnight = Math.floor((midnight.getTime() - now.getTime()) / 1000);
 
     return new ImageResponse(
         (

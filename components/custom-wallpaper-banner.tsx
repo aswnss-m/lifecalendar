@@ -13,12 +13,12 @@ import ReactCrop, {
     type PixelCrop,
 } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import { Iphone } from "@/lib/sizes";
-import { uploadCroppedImage, createWallpaper } from "@/app/types/days-in-year/ios/custom-wallpaper/actions";
+import { createWallpaper } from "@/app/types/days-in-year/ios/custom-wallpaper/actions";
 import type { FormValues } from "@/app/types/days-in-year/ios/tabs/customize";
 
 interface Props {
-    model: keyof typeof Iphone;
+    model: string;
+    size: { width: number; height: number };
     formValues: FormValues;
     style: "flat" | "monthly";
 }
@@ -58,8 +58,8 @@ async function extractCroppedBlob(
     return new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.85));
 }
 
-export function CustomWallpaperBanner({ model, formValues, style }: Props) {
-    const { isSignedIn, userId } = useAuth();
+export function CustomWallpaperBanner({ model, size, formValues, style }: Props) {
+    const { isSignedIn } = useAuth();
     const pathname = usePathname();
     const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -69,8 +69,9 @@ export function CustomWallpaperBanner({ model, formValues, style }: Props) {
     const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
     const [open, setOpen] = useState(false);
     const [isPending, startTransition] = useTransition();
+    const [error, setError] = useState("");
 
-    const { width, height } = Iphone[model];
+    const { width, height } = size;
     const aspect = width / height;
 
     function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -84,6 +85,7 @@ export function CustomWallpaperBanner({ model, formValues, style }: Props) {
     }
 
     function handleChange() {
+        setError("");
         setImgSrc("");
         setCrop(undefined);
         setCompletedCrop(undefined);
@@ -101,19 +103,26 @@ export function CustomWallpaperBanner({ model, formValues, style }: Props) {
     }
 
     function handleSet() {
-        console.log("User Id ", userId);
         if (!completedCrop || !imgRef.current) return;
+        const image = imgRef.current;
+        setError("");
         startTransition(async () => {
-            const blob = await extractCroppedBlob(imgRef.current!, completedCrop, width, height);
-            if (!blob) return;
-            const formData = new FormData();
-            formData.append("image", blob, "wallpaper.jpg");
-            const image = await uploadCroppedImage(formData);
-            const wallpaper = await createWallpaper(image.id, model, {
-                ...formValues,
-                style,
-            });
-            router.push(`/wallpaper/${wallpaper.id}`);
+            try {
+                const blob = await extractCroppedBlob(image, completedCrop, width, height);
+                if (!blob) throw new Error("Could not crop image");
+                const formData = new FormData();
+                formData.append("image", blob, "wallpaper.jpg");
+                formData.append("model", model);
+                formData.append("metadata", JSON.stringify({
+                    ...formValues,
+                    style,
+                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                }));
+                const wallpaper = await createWallpaper(formData);
+                router.push(`/wallpaper/${wallpaper.id}`);
+            } catch {
+                setError("Upload failed. Please try again.");
+            }
         });
     }
 
@@ -171,6 +180,9 @@ export function CustomWallpaperBanner({ model, formValues, style }: Props) {
                                         />
                                     </ReactCrop>
                                 </div>
+                                {error && (
+                                    <p role="alert" className="px-4 pt-3 text-sm text-destructive">{error}</p>
+                                )}
                                 <div className="flex gap-2 px-4 py-3 border-t border-border">
                                     <Button
                                         variant="outline"
