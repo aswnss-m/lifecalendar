@@ -33,3 +33,9 @@ export async function uploadImage(imageUrl: string, userId: string){
         data: result
     };
 }
+
+/** Best-effort delete, used to clean up an upload whose database write failed. */
+export async function deleteImage(publicId: string) {
+    const [, error] = await trycatch(() => cloudinary.uploader.destroy(publicId));
+    if (error) console.error(error);
+}

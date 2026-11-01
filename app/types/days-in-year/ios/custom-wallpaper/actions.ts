@@ -2,8 +2,8 @@
 
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
-import { uploadImage } from "@/services/cloudinary";
-import type { Prisma } from "@/generated/prisma/client";
+import { deleteImage, uploadImage } from "@/services/cloudinary";
+import { parseWallpaperMeta } from "@/lib/wallpaper-meta";
 
 
 async function ensureUser(userId: string) {
@@ -18,7 +18,8 @@ async function ensureUser(userId: string) {
     });
 }
 
-export async function uploadCroppedImage(formData: FormData) {
+/** Uploads the cropped image and creates its wallpaper in one step, so a failure leaves no orphaned rows or assets. */
+export async function createWallpaper(formData: FormData) {
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized");
 
@@ -26,6 +27,8 @@ export async function uploadCroppedImage(formData: FormData) {
     if (!(file instanceof File) || file.size === 0) {
         throw new Error("No image provided");
     }
+    const model = String(formData.get("model") ?? "").slice(0, 64);
+    const metadata = parseWallpaperMeta(JSON.parse(String(formData.get("metadata") ?? "{}")));
 
     await ensureUser(userId);
 
@@ -34,34 +37,34 @@ export async function uploadCroppedImage(formData: FormData) {
     const result = await uploadImage(dataUrl, userId);
     if (!result.success || !result.data) throw new Error(result.message);
 
-    return prisma.image.create({
-        data: { url: result.data.url, userId },
-    });
+    try {
+        const image = await prisma.image.create({
+            data: {
+                url: result.data.secure_url,
+                userId,
+                wallpapers: { create: { model, metadata, userId } },
+            },
+            select: { wallpapers: { select: { id: true } } },
+        });
+        return { id: image.wallpapers[0].id };
+    } catch (error) {
+        await deleteImage(result.data.public_id);
+        throw error;
+    }
 }
 
 export async function updateWallpaper(
     id: string,
     model: string,
-    metadata: Prisma.InputJsonValue,
+    metadata: unknown,
 ) {
     const { userId } = await auth();
     if (!userId) throw new Error("Unauthorized");
 
-    return prisma.wallpaper.update({
+    const wallpaper = await prisma.wallpaper.update({
         where: { id, userId },
-        data: { model, metadata },
+        data: { model: model.slice(0, 64), metadata: parseWallpaperMeta(metadata) },
+        select: { updatedAt: true },
     });
-}
-
-export async function createWallpaper(
-    imageId: string,
-    model: string,
-    metadata: Prisma.InputJsonValue,
-) {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
-
-    return prisma.wallpaper.create({
-        data: { imageId, model, metadata, userId },
-    });
+    return { updatedAt: wallpaper.updatedAt.getTime() };
 }

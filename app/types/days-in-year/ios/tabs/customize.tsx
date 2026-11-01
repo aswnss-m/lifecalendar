@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/field";
 import { Slider } from "@/components/ui/slider";
 import { useModelScaler } from "@/hooks/use-model-scaler";
-import { Iphone } from "@/lib/sizes";
 
 const formSchema = z.object({
     boxWidth: z.number().min(10).max(50),
@@ -67,12 +66,12 @@ interface Props {
     onValuesChange: (values: FormValues) => void;
     style: "flat" | "monthly";
     initialValues: FormValues;
-    model: keyof typeof Iphone;
+    size: { width: number; height: number };
     showBgColor?: boolean;
 }
 
-export default function IosCustomization({ onValuesChange, style, initialValues, model, showBgColor = true }: Props) {
-    const { x_scale, width } = useModelScaler(Iphone[ "17" ], {
+export default function IosCustomization({ onValuesChange, style, initialValues, size, showBgColor = true }: Props) {
+    const { x_scale, width } = useModelScaler(size, {
         maxHeight: 500,
     });
 
@@ -84,6 +83,7 @@ export default function IosCustomization({ onValuesChange, style, initialValues,
     // Reset to new theme defaults when the theme first resolves (undefined → "dark"/"light").
     useEffect(() => {
         form.reset(initialValues);
+        onValuesChange(initialValues);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ initialValues ]);
 
@@ -94,24 +94,28 @@ export default function IosCustomization({ onValuesChange, style, initialValues,
     // containerWidth = card width minus CardContent's px-6 padding (24px × 2).
     const cellSize = x_scale(values.boxWidth);
     const containerWidth = width - 48;
-    const GAP = 4;
+    // Gaps match the previews: flat grid uses 4px, monthly uses 3px between dots and x_scale(40) between months.
+    const monthGap = x_scale(40);
 
     const checkOverflow = useCallback(() => {
-        const naturalGridWidth =
-            values.columns * cellSize + (values.columns - 1) * GAP;
-        if (naturalGridWidth > containerWidth) {
-            setError("columns", {
-                type: "overflow",
-                message: "Grid overflows the preview — reduce columns or box width",
-            });
-            setError("boxWidth", {
-                type: "overflow",
-                message: "Grid overflows the preview — reduce columns or box width",
-            });
-        } else {
-            clearErrors([ "columns", "boxWidth" ]);
+        clearErrors([ "columns", "boxWidth" ]);
+        if (style === "monthly") {
+            const monthlyWidth = 3 * (7 * cellSize + 6 * 3) + 2 * monthGap;
+            if (monthlyWidth > containerWidth) {
+                setError("boxWidth", {
+                    type: "overflow",
+                    message: "Months overflow the preview. Reduce box width.",
+                });
+            }
+            return;
         }
-    }, [ setError, clearErrors, values.columns, cellSize, containerWidth ]);
+        const flatWidth = values.columns * cellSize + (values.columns - 1) * 4;
+        if (flatWidth > containerWidth) {
+            const message = "Grid overflows the preview. Reduce columns or box width.";
+            setError("columns", { type: "overflow", message });
+            setError("boxWidth", { type: "overflow", message });
+        }
+    }, [ setError, clearErrors, style, values.columns, cellSize, monthGap, containerWidth ]);
 
     useEffect(() => {
         checkOverflow();
@@ -150,6 +154,7 @@ export default function IosCustomization({ onValuesChange, style, initialValues,
                                 </FieldLabel>
                                 <Slider
                                     id={field.name}
+                                    aria-label="Width"
                                     min={10}
                                     max={50}
                                     step={1}
@@ -179,6 +184,7 @@ export default function IosCustomization({ onValuesChange, style, initialValues,
                                     </FieldLabel>
                                     <Slider
                                         id={field.name}
+                                        aria-label="Columns"
                                         min={5}
                                         max={20}
                                         step={5}
@@ -208,6 +214,7 @@ export default function IosCustomization({ onValuesChange, style, initialValues,
                                 </FieldLabel>
                                 <Slider
                                     id={field.name}
+                                    aria-label="Corner radius"
                                     min={0}
                                     max={100}
                                     value={[ field.value ]}
@@ -380,7 +387,7 @@ export default function IosCustomization({ onValuesChange, style, initialValues,
                                         data-invalid={fieldState.invalid}
                                     >
                                         <FieldLabel htmlFor={field.name}>
-                                            Days Left Color
+                                            Days Left Text Color
                                         </FieldLabel>
                                         <input
                                             {...field}

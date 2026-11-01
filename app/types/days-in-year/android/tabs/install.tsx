@@ -58,7 +58,10 @@ function ModelCombobox({ model, onModelChange }: { model: keyof typeof android; 
     return (
         <div ref={containerRef} className="relative">
             <button
+                id="model-select"
                 type="button"
+                aria-haspopup="listbox"
+                aria-expanded={open}
                 onClick={() => { setOpen((o) => !o); setSearch(""); }}
                 className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring flex items-center justify-between"
             >
@@ -74,6 +77,7 @@ function ModelCombobox({ model, onModelChange }: { model: keyof typeof android; 
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder="Search model..."
+                            aria-label="Search model"
                             className="w-full rounded-sm bg-transparent px-2 py-1 text-sm outline-none placeholder:text-muted-foreground"
                         />
                     </div>
@@ -109,9 +113,13 @@ export default function AndroidInstall({ params, style, onStyleChange, model, on
     }, [params]);
 
     const handleCopy = async () => {
-        await navigator.clipboard.writeText(url);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
+        try {
+            await navigator.clipboard.writeText(url);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch {
+            // Clipboard API is missing on non-HTTPS origins; the URL above stays selectable.
+        }
     };
 
     return (
@@ -119,7 +127,7 @@ export default function AndroidInstall({ params, style, onStyleChange, model, on
             {/* Model + Style selectors side-by-side */}
             <div className="flex gap-3">
                 <div className="flex flex-col gap-1.5 flex-1 min-w-0">
-                    <label className="text-sm font-medium">Phone Model</label>
+                    <label htmlFor="model-select" className="text-sm font-medium">Phone Model</label>
                     <ModelCombobox model={model} onModelChange={onModelChange} />
                 </div>
                 <div className="flex flex-col gap-1.5 flex-1">

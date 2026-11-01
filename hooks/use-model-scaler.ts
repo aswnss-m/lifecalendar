@@ -34,8 +34,10 @@ export function useModelScaler(
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [model.width, model.height, maxWidth, minWidth, maxHeight, minHeight]);
 
-	// Lazy-initialise so the very first render already has the right value.
-	const [scaler, setScaler] = useState(compute);
+	// First render ignores the viewport so it matches the server; the effect below applies the viewport caps.
+	const [scaler, setScaler] = useState(() =>
+		createModelScaler(model, { maxWidth, minWidth, maxHeight, minHeight }),
+	);
 
 	useEffect(() => {
 		const onResize = () => setScaler(compute());
